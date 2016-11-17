@@ -293,14 +293,18 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> -info
 				;
 
-		exp_ = (tok.identifier >> exp_helper [_val = _1])
-				| exp_int | mux | validif | primop
+		reference = tok.identifier [_val = make_shared<Reference>()(_1)]
 				;
 
-		exp_helper = exp_subfield
-				| exp_subindex
-				| exp_subaccess
-				| eps [_val = make_shared<Expression>()()]
+		exp_ = (reference [_a = _1] | exp_int [_a = _1] | mux [_a = _1]
+				| validif [_a = _1] | primop [_a = _1] )
+				>> exp_helper(_a) [_val = _1]
+				;
+
+		exp_helper = exp_subfield(_r1) [_val = _1]
+				| exp_subindex(_r1) [_val = _1]
+				| exp_subaccess(_r1) [_val = _1]
+				| eps [_val = _r1]
 				;
 
 		exp_int = (tok.UInt
@@ -312,16 +316,18 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> ")"
 				;
 
-		exp_subfield = "." >> tok.identifier [_val = make_shared<SubField>()()]
-				>> exp_helper
+		exp_subfield = "."
+				>> reference [_a = make_shared<SubField>()(_1, _r1)]
+				>> exp_helper(_a) [_val = _1]
 				;
 
-		exp_subindex = "[" >> tok.int_ [_val = make_shared<SubIndex>()()]
-				>> "]" >> exp_helper
+		exp_subindex = "[" >> tok.int_ [_a = make_shared<SubIndex>()(_1, _r1)]
+				>> "]" >> exp_helper(_a) [_val = _1]
 				;
 
-		exp_subaccess = "[" >> tok.identifier [_val = make_shared<SubAccess>()()]
-				>> "]" >> exp_helper
+		exp_subaccess = "["
+				>> reference [_a = make_shared<SubAccess>()(_1, _r1)]
+				>> "]" >> exp_helper(_a) [_val = _1]
 				;
 
 		mux = tok.mux [_val = make_shared<Expression>()()]
@@ -392,9 +398,15 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
     qi::rule<Iterator, int()> mem_writelat;
     qi::rule<Iterator, MemoryCharacteristics::RuwFlag()> mem_ruw;
 
-    qi::rule<Iterator, std::shared_ptr<Expression>()>  exp_, exp_int,
-    		exp_subfield, exp_subindex, exp_subaccess, mux, validif,
-			exp_helper;
+    qi::rule<Iterator, std::shared_ptr<Expression>(), qi::locals<std::shared_ptr<Expression> > >  exp_;
+    qi::rule<Iterator, std::shared_ptr<Expression>(std::shared_ptr<Expression>) > exp_helper;
+    qi::rule<Iterator, std::shared_ptr<Expression>()> exp_int, mux, validif;
+    qi::rule<Iterator, std::shared_ptr<Reference>()> reference;
+
+    qi::rule<Iterator,
+		std::shared_ptr<Expression>(std::shared_ptr<Expression>),
+		qi::locals<std::shared_ptr<Expression> > > exp_subaccess, exp_subfield, exp_subindex;
+
     qi::rule<Iterator, std::shared_ptr<PrimOp>()> primop;
 };
 

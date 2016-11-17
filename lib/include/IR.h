@@ -302,6 +302,9 @@ private:
 };
 
 class Reference : public Expression {
+public:
+	Reference() : Reference("") {}
+	Reference(std::string id) : mId(id), mResolved(false) {}
 private:
 	bool mResolved;
 	std::shared_ptr<Declaration> mTo;
@@ -309,21 +312,34 @@ private:
 };
 
 class SubField : public Expression {
+public:
+	SubField() : SubField(nullptr, nullptr) {}
+	SubField(std::shared_ptr<Reference> id, std::shared_ptr<Expression> of)
+	: mId(id), mOf(of) {}
 private:
 	std::shared_ptr<Expression> mOf;
-	std::string mId;
+	std::shared_ptr<Reference> mId;
 };
 
 class SubIndex : public Expression {
+public:
+	SubIndex() : SubIndex(-1, nullptr) {}
+	SubIndex(int index, std::shared_ptr<Expression> of)
+	: mIndex(index), mOf(of) {}
 private:
 	std::shared_ptr<Expression> mOf;
 	int mIndex;
 };
 
 class SubAccess : public Expression {
+public:
+	SubAccess() : SubAccess(nullptr, nullptr) {}
+	SubAccess(std::shared_ptr<Reference> expr,
+			std::shared_ptr<Expression> of)
+	: mOf(of), mExp(expr) {}
 private:
 	std::shared_ptr<Expression> mOf;
-	std::shared_ptr<Expression> mExp;
+	std::shared_ptr<Reference> mExp;
 };
 
 class Mux : public Expression {
@@ -349,6 +365,7 @@ public:
 
 	PrimOp();
 	PrimOp(Operation op, int numOp, int numParam);
+	virtual ~PrimOp() {}
 
 	static const bool lookup(std::string v, Operation &op);
 
@@ -370,6 +387,7 @@ public:
 
 	int numOperands() { return mNumOperands; }
 	int numParameters() {return mNumParameters; }
+	virtual std::string operationName() = 0;
 protected:
 	Operation mOp;
 	std::vector<std::shared_ptr<Expression> > mOperands;
@@ -382,161 +400,193 @@ protected:
 class PrimOpADD : public PrimOp {
 public:
 	PrimOpADD() : PrimOp(ADD, 2, 0) {}
+	virtual std::string operationName() { return "add"; }
 };
 
 class PrimOpSUB : public PrimOp {
 public:
 	PrimOpSUB() : PrimOp(SUB, 2, 0) {}
+	virtual std::string operationName() { return "sub"; }
 };
 
 class PrimOpMUL : public PrimOp {
 public:
 	PrimOpMUL() : PrimOp(MUL, 2, 0) {}
+	virtual std::string operationName() { return "mul"; }
 };
 
 class PrimOpDIV : public PrimOp {
 public:
 	PrimOpDIV() : PrimOp(DIV, 2, 0) {}
+	virtual std::string operationName() { return "div"; }
 };
 
 class PrimOpMOD : public PrimOp {
 public:
 	PrimOpMOD() : PrimOp(MOD, 2, 0) {}
+	virtual std::string operationName() { return "mod"; }
 };
 
 class PrimOpLT : public PrimOp {
 public:
 	PrimOpLT() : PrimOp(LT, 2, 0) {}
+	virtual std::string operationName() { return "lt"; }
 };
 
 class PrimOpLEQ : public PrimOp {
 public:
 	PrimOpLEQ() : PrimOp(LEQ, 2, 0) {}
+	virtual std::string operationName() { return "leq"; }
 };
 
 class PrimOpGT : public PrimOp {
 public:
 	PrimOpGT() : PrimOp(GT, 2, 0) {}
+	virtual std::string operationName() { return "gt"; }
 };
 
 class PrimOpGEQ : public PrimOp {
 public:
 	PrimOpGEQ() : PrimOp(GEQ, 2, 0) {}
+	virtual std::string operationName() { return "geq"; }
 };
 
 class PrimOpEQ : public PrimOp {
 public:
 	PrimOpEQ() : PrimOp(EQ, 2, 0) {}
+	virtual std::string operationName() { return "eq"; }
 };
 
 class PrimOpNEQ : public PrimOp {
 public:
 	PrimOpNEQ() : PrimOp(NEQ, 2, 0) {}
+	virtual std::string operationName() { return "neq"; }
 };
 
 class PrimOpPAD : public PrimOp {
 public:
 	PrimOpPAD() : PrimOp(ADD, 1, 1) {}
+	virtual std::string operationName() { return "pad"; }
 };
 
 class PrimOpASUINT : public PrimOp {
 public:
 	PrimOpASUINT() : PrimOp(ASUINT, 1, 0) {}
+	virtual std::string operationName() { return "asUInt"; }
 };
 
 class PrimOpASSINT : public PrimOp {
 public:
 	PrimOpASSINT() : PrimOp(ASSINT, 1, 0) {}
+	virtual std::string operationName() { return "asSInt"; }
 };
 
 class PrimOpASCLOCK : public PrimOp {
 public:
 	PrimOpASCLOCK() : PrimOp(ASCLOCK, 1, 0) {}
+	virtual std::string operationName() { return "asClock"; }
 };
 
 class PrimOpSHL : public PrimOp {
 public:
 	PrimOpSHL() : PrimOp(SHL, 1, 1) {}
+	virtual std::string operationName() { return "shl"; }
 };
 
 class PrimOpSHR : public PrimOp {
 public:
 	PrimOpSHR() : PrimOp(SHR, 1, 1) {}
+	virtual std::string operationName() { return "shr"; }
 };
 
 class PrimOpDSHL : public PrimOp {
 public:
 	PrimOpDSHL() : PrimOp(DSHL, 2, 0) {}
+	virtual std::string operationName() { return "dshl"; }
 };
 
 class PrimOpDSHR : public PrimOp {
 public:
 	PrimOpDSHR() : PrimOp(DSHR, 2, 0) {}
+	virtual std::string operationName() { return "dshr"; }
 };
 
 class PrimOpCVT : public PrimOp {
 public:
 	PrimOpCVT() : PrimOp(CVT, 1, 0) {}
+	virtual std::string operationName() { return "cvt"; }
 };
 
 class PrimOpNEG : public PrimOp {
 public:
 	PrimOpNEG() : PrimOp(NEG, 1, 0) {}
+	virtual std::string operationName() { return "neg"; }
 };
 
 class PrimOpNOT : public PrimOp {
 public:
 	PrimOpNOT() : PrimOp(NOT, 1, 0) {}
+	virtual std::string operationName() { return "not"; }
 };
 
 class PrimOpAND : public PrimOp {
 public:
 	PrimOpAND() : PrimOp(ADD, 2, 0) {}
+	virtual std::string operationName() { return "and"; }
 };
 
 class PrimOpOR : public PrimOp {
 public:
 	PrimOpOR() : PrimOp(OR, 2, 0) {}
+	virtual std::string operationName() { return "or"; }
 };
 
 class PrimOpXOR : public PrimOp {
 public:
 	PrimOpXOR() : PrimOp(XOR, 2, 0) {}
+	virtual std::string operationName() { return "xor"; }
 };
 
 class PrimOpANDR : public PrimOp {
 public:
 	PrimOpANDR() : PrimOp(ANDR, 1, 0) {}
+	virtual std::string operationName() { return "andr"; }
 };
 
 class PrimOpORR : public PrimOp {
 public:
 	PrimOpORR() : PrimOp(ORR, 1, 0) {}
+	virtual std::string operationName() { return "orr"; }
 };
 
 class PrimOpXORR : public PrimOp {
 public:
 	PrimOpXORR() : PrimOp(XORR, 1, 0) {}
+	virtual std::string operationName() { return "xorr"; }
 };
 
 class PrimOpCAT : public PrimOp {
 public:
 	PrimOpCAT() : PrimOp(CAT, 2, 0) {}
+	virtual std::string operationName() { return "cat"; }
 };
 
 class PrimOpBITS : public PrimOp {
 public:
 	PrimOpBITS() : PrimOp(BITS, 1, 2) {}
+	virtual std::string operationName() { return "bits"; }
 };
 
 class PrimOpHEAD : public PrimOp {
 public:
 	PrimOpHEAD() : PrimOp(HEAD, 1, 1) {}
+	virtual std::string operationName() { return "head"; }
 };
 
 class PrimOpTAIL : public PrimOp {
 public:
 	PrimOpTAIL() : PrimOp(TAIL, 1, 1) {}
+	virtual std::string operationName() { return "tail"; }
 };
 
 }
