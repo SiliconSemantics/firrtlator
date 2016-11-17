@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libfirrtlator.la
 
 libfirrtlator_la_SOURCES = \
     src/Firrtlator.cpp \
+    src/Expressions.cpp \
 	frontends/generic/src/Frontends.cpp \
 	frontends/firrtl/src/FirrtlFrontend.cpp
 

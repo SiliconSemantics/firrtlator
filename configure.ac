@@ -3,7 +3,7 @@ AC_INIT([firrtlator],
         [0.1],
         [wallento@silicon-semantics.com],
         [firrtlator],
-        [http://www.opensocdebug.org])
+        [http://www.firrtlator.org])
 AC_CONFIG_SRCDIR([lib/include/Firrtlator.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([check-news foreign 1.11 -Wall -Wno-portability silent-rules tar-pax no-dist-gzip dist-xz subdir-objects])
