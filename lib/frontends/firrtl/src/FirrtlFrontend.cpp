@@ -25,6 +25,8 @@
 #include "FirrtlFrontendLexer.h"
 #include "FirrtlFrontendGrammar.h"
 
+#include "FirrtlBackend.h"
+
 #include <iostream>
 
 namespace Firrtlator {
@@ -62,10 +64,8 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 		return false;
 	}
 
-	std::cout << "Circuit '" << c->getId() << "'" << std::endl;
-	if (c->getInfo() != nullptr) {
-		std::cout << "  Info: " << c->getInfo()->getValue() << std::endl;
-	}
+	FirrtlBackend backend;
+	backend.generate(c);
 
 	return true;
 }

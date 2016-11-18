@@ -34,6 +34,8 @@ public:
 			std::string::const_iterator end, std::string type = "");
 	bool parseFile(std::string filename, std::string type = "");
 	bool parseString(std::string string, std::string type = "");
+
+	void generate(std::string filename, std::string type = "fir");
 private:
 	class impl;
 	std::unique_ptr<impl> pimpl;

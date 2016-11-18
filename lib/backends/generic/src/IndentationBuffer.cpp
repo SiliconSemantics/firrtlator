@@ -20,42 +20,38 @@
  * SOFTWARE.
  */
 
-#include "Firrtlator.h"
-#include "FirrtlFrontend.h"
+#include "IndentationBuffer.h"
 
 namespace Firrtlator {
 
-Frontend::~Frontend() {
-
+/* Helper function to get a storage index in a stream */
+static int get_indent_index() {
+    /* ios_base::xalloc allocates indices for custom-storage locations. These indices are valid for all streams */
+    static int index = std::ios_base::xalloc();
+    return index;
 }
 
-bool Firrtlator::parse(std::string::const_iterator begin,
-		std::string::const_iterator end, std::string type) {
-	if (type == "fir") {
-		FirrtlFrontend frontend;
-		return frontend.parseString(begin, end);
-	}
-
-	return false;
+std::ios_base& indent(std::ios_base& stream) {
+    /* The iword(index) function gives a reference to the index-th custom storage location as a integer */
+    stream.iword(get_indent_index())++;
+    return stream;
 }
 
-bool Firrtlator::parseFile(std::string filename, std::string type) {
-    std::ifstream in(filename, std::ios_base::in);
-    if (!in) {
-        // TODO: log
-        return false;
+std::ios_base& dedent(std::ios_base& stream) {
+    /* The iword(index) function gives a reference to the index-th custom storage location as a integer */
+    stream.iword(get_indent_index())--;
+    return stream;
+}
+
+std::basic_ostream<char, std::char_traits<char>>& endl(std::basic_ostream<char, std::char_traits<char>>& stream) {
+    int indent = stream.iword(get_indent_index());
+    stream.put(stream.widen('\n'));
+    while (indent) {
+        stream.put(stream.widen('\t'));
+        indent--;
     }
-    std::string str((std::istreambuf_iterator<char>(in)),
-                     std::istreambuf_iterator<char>());
-
-    return parse(str.begin(), str.end(), type);
-}
-
-bool Firrtlator::parseString(std::string content, std::string type) {
-	return parse(content.begin(), content.end(), type);
-}
-
-void Firrtlator::generate(std::string filename, std::string type) {
+    stream.flush();
+    return stream;
 }
 
 }

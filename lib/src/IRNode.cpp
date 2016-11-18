@@ -20,42 +20,24 @@
  * SOFTWARE.
  */
 
-#include "Firrtlator.h"
-#include "FirrtlFrontend.h"
+#include <IR.h>
+
+#include <iostream>
 
 namespace Firrtlator {
 
-Frontend::~Frontend() {
-
+std::ostream& operator<< (std::ostream& os, const Firrtlator::IRNode& n) {
+	n.emit(os);
+	return os;
 }
 
-bool Firrtlator::parse(std::string::const_iterator begin,
-		std::string::const_iterator end, std::string type) {
-	if (type == "fir") {
-		FirrtlFrontend frontend;
-		return frontend.parseString(begin, end);
+std::ostream& operator<< (std::ostream &os, const Info &info)
+{
+	if (info.mValue.length() > 0) {
+		os << " @[" << info.mValue << "] ";
 	}
-
-	return false;
-}
-
-bool Firrtlator::parseFile(std::string filename, std::string type) {
-    std::ifstream in(filename, std::ios_base::in);
-    if (!in) {
-        // TODO: log
-        return false;
-    }
-    std::string str((std::istreambuf_iterator<char>(in)),
-                     std::istreambuf_iterator<char>());
-
-    return parse(str.begin(), str.end(), type);
-}
-
-bool Firrtlator::parseString(std::string content, std::string type) {
-	return parse(content.begin(), content.end(), type);
-}
-
-void Firrtlator::generate(std::string filename, std::string type) {
+    return os;
 }
 
 }
+

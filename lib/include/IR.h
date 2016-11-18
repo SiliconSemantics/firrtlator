@@ -44,7 +44,9 @@ public:
 	Info(std::string value = "") : mValue(value) {}
 	void setValue(std::string value) { mValue = value; }
 	std::string getValue() { return mValue; }
+	friend std::ostream& operator<< (std::ostream &out, const Info &Info);
 };
+
 
 class IRNode {
 public:
@@ -72,6 +74,8 @@ public:
 		return (mId.length() != 0);
 	}
 
+	virtual void emit(std::ostream& os) const {/*TODO: =0 once implemented*/};
+
 	inline void throwAssert(bool cond, std::string msg) {
 		if (!cond)
 			throw std::runtime_error(msg);
@@ -81,6 +85,8 @@ protected:
 	std::string mId;
 	std::vector<std::shared_ptr<IRNode> > mReferences;
 };
+
+std::ostream& operator<< (std::ostream& os, const ::Firrtlator::IRNode& n);
 
 class Circuit : public IRNode {
 private:
@@ -223,6 +229,7 @@ public:
 
 		mParameters.push_back(param);
 	}
+	virtual void emit(std::ostream& os) const;
 private:
 	bool mExternal;
 	std::string mDefname;

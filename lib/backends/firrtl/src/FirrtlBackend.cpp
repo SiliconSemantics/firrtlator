@@ -20,42 +20,21 @@
  * SOFTWARE.
  */
 
-#include "Firrtlator.h"
-#include "FirrtlFrontend.h"
+#include "FirrtlBackend.h"
+
+#include "IndentationBuffer.h"
+
+#include <iostream>
 
 namespace Firrtlator {
 
-Frontend::~Frontend() {
+Backend::~Backend() {
 
 }
 
-bool Firrtlator::parse(std::string::const_iterator begin,
-		std::string::const_iterator end, std::string type) {
-	if (type == "fir") {
-		FirrtlFrontend frontend;
-		return frontend.parseString(begin, end);
-	}
-
-	return false;
-}
-
-bool Firrtlator::parseFile(std::string filename, std::string type) {
-    std::ifstream in(filename, std::ios_base::in);
-    if (!in) {
-        // TODO: log
-        return false;
-    }
-    std::string str((std::istreambuf_iterator<char>(in)),
-                     std::istreambuf_iterator<char>());
-
-    return parse(str.begin(), str.end(), type);
-}
-
-bool Firrtlator::parseString(std::string content, std::string type) {
-	return parse(content.begin(), content.end(), type);
-}
-
-void Firrtlator::generate(std::string filename, std::string type) {
+void FirrtlBackend::generate(std::shared_ptr<Circuit> ir) {
+	std::cout << "Test" << endl;
+	std::cout << *ir;
 }
 
 }
