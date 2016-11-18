@@ -49,6 +49,29 @@ std::shared_ptr<PrimOp> PrimOp::generate(const Operation &op) {
 	default:
 		throw std::runtime_error("Unknown operation type");
 	}
+#undef GENOP
+}
+
+const std::string PrimOp::operationName(Operation op) {
+#define GENOP(x,y) case x: return y;
+	switch(op) {
+	GENOP(ADD,"add"); GENOP(SUB,"sub"); GENOP(MUL,"mul"); GENOP(DIV,"div");
+	GENOP(MOD,"mod"); GENOP(LT,"lt"); GENOP(LEQ,"leq"); GENOP(GT,"gt");
+	GENOP(GEQ,"geq"); GENOP(EQ,"eq"); GENOP(NEQ,"neq"); GENOP(PAD,"pad");
+	GENOP(ASUINT,"asUInt"); GENOP(ASSINT,"asSInt"); GENOP(ASCLOCK,"asClock");
+	GENOP(SHL,"shl"); GENOP(SHR,"shr"); GENOP(DSHL,"dshl"); GENOP(DSHR,"dshr");
+	GENOP(CVT,"cvt"); GENOP(NEG,"neg"); GENOP(NOT,"not"); GENOP(AND,"and");
+	GENOP(OR,"or"); GENOP(XOR,"xor"); GENOP(ANDR,"andr"); GENOP(ORR,"orr");
+	GENOP(XORR,"xorr"); GENOP(CAT,"cat"); GENOP(BITS,"bits");
+	GENOP(HEAD,"head"); GENOP(TAIL,"tail");
+	default:
+		throw std::runtime_error("Unknown operation type");
+	}
+#undef GENOP
+}
+
+std::string PrimOp::operationName() {
+	return operationName(mOp);
 }
 
 std::shared_ptr<PrimOp> PrimOp::generate(const std::string &s) {

@@ -29,12 +29,6 @@
 
 namespace Firrtlator {
 
-/*
- * FIRRTL stuff:
- *  - reset as keyword?
- *  - indentation
- */
-
 bool FirrtlFrontend::parseString(std::string::const_iterator begin,
         std::string::const_iterator end) {
 		std::shared_ptr<Circuit> c;
@@ -60,6 +54,9 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 		FirrtlGrammar<iterator_type> g(token_lexer);
 
 		bool res = lex::tokenize_and_parse(begin, end, token_lexer, g, c);
+
+		if (begin != end)
+			res = false;
 
 	if (!res) {
 		return false;

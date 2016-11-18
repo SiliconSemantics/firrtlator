@@ -27,15 +27,6 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 
-BOOST_FUSION_ADAPT_STRUCT(
-    Firrtlator::MemoryCharacteristics,
-    (std::shared_ptr<Firrtlator::Type>, type)
-	(int,depth)
-	(int,readlatency)
-	(int,writelatency)
-	(Firrtlator::MemoryCharacteristics::RuwFlag,ruwflag)
-)
-
 namespace Firrtlator {
 
 namespace qi = boost::spirit::qi;
@@ -94,7 +85,9 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 			>> tok.identifier [_val = make_shared<Circuit>()(_1)]
 			>> ":"
 			>> -info [bind(&Circuit::setInfo, _val, _1)]
-			>> -(qi::token(INDENT) >> *module >> qi::token(DEDENT))
+			>> -(qi::token(INDENT)
+			>> *module [bind(&Circuit::addModule, _val, _1)]
+			>> qi::token(DEDENT))
 			;
 
 		info = tok.info[_val = make_shared<Info>()(_1)]
@@ -107,11 +100,11 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				tok.module
 				>> tok.identifier [_val = make_shared<Module>()(_1, false)]
 				>> ":"
-				>> -info
+				>> -info [bind(&Module::setInfo, _val, _1)]
 				>> -(
 					 qi::token(INDENT)
-					>> *port
-					>> +stmt
+					>> *port [bind(&Module::addPort, _val, _1)]
+					>> +stmt [bind(&Module::addStmt, _val, _1)]
 					>> qi::token(DEDENT)
 		            )
 				;
@@ -124,20 +117,20 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> -(
 					 qi::token(INDENT)
 					 >> *port [bind(&Module::addPort, _val, _1)]
-					 >>	-defname
-					 >> *parameter
+					 >>	-defname [bind(&Module::setDefname, _val, _1)]
+					 >> *parameter [bind(&Module::addParameter, _val, _1)]
 					 >> qi::token(DEDENT)
 	               )
 				;
 
 		port = (tok.input [_a = Port::Direction::INPUT]
 				| tok.output [_a = Port::Direction::OUTPUT])
-				>> tok.identifier [_val = make_shared<Port>()(_1, _a)]
-		        >> ":" >> type
+				>> (tok.identifier
+		        >> ":" >> type ) [_val = make_shared<Port>()(_1, _a, _2)]
 				>> -info [bind(&Port::setInfo, _val, _1)]
 				;
 
-		defname = tok.defname >> "=" >> tok.identifier;
+		defname = tok.defname >> "=" >> tok.identifier [_val = _1];
 
 		parameter = tok.parameter [_val = make_shared<Parameter>()()]
 				>> tok.identifier >> "=" >>
@@ -155,7 +148,7 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				;
 
 		type_bundle = lit("{") [_val = make_shared<TypeBundle>()()]
-				>> *field
+				>> *field [bind(&TypeBundle::addField, _val, _1)]
 				>> "}"
 				;
 
@@ -164,133 +157,155 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> tok.int_ [bind(&TypeVector::setSize, _val, _1)]
 				>> "]";
 
-		field = eps [_val = make_shared<Field>()()]
-				>> -tok.flip [bind(&Field::setFlip, _val, true)]
-				>> tok.identifier [bind(&Field::setId, _val, _1)]
+		field = (eps [_a = false]
+				| tok.flip [_a = true])
+				>> (tok.identifier
 			    >> ":"
-				>> type [bind(&Field::setType, _val, _1)]
+				>> type) [_val = make_shared<Field>()(_1, _2, _a)]
 				;
 
 		stmt %= wire | reg | mem | inst | node | connect | partconnect
 				| invalidate | conditional | stop | printf_ | empty
 				;
 
-		stmt_group = lit("(") [_val = make_shared<Stmt>()()]
-				>> +stmt
-				>> ")"
-				;
+		stmt_list = +stmt;
 
-		stmt_suite = stmt
-				| (qi::tokenid(INDENT) [_val = make_shared<Stmt>()()]
-			    >> +stmt
+
+		stmt_suite = (qi::tokenid(INDENT)
+			    >> stmt_list [_val = _1]
 				>> qi::tokenid(DEDENT))
 				;
 
-		wire = tok.wire [_val = make_shared<Stmt>()()]
-				>> tok.identifier
+		wire = tok.wire
+				>> (tok.identifier
 				>> ":"
-				>> type
+				>> type) [_val = make_shared<Wire>()(_1, _2)]
+				>> -info [bind(&Stmt::setInfo, _val, _1)]
 				;
 
-		reg = tok.reg [_val = make_shared<Stmt>()()]
-				>> tok.identifier
+		reg = tok.reg
+				>> (tok.identifier
 				>> ":"
 				>> type
-				>> exp_
+				>> exp_) [_val = make_shared<Reg>()(_1, _2, _3)]
 				>> -(tok.with >> ":" >> '('
 				>> tok.identifier [ qi::_pass = (_1 == "reset") ]
 				>> tok.assign >> '(' >> exp_ >> exp_ >> ')' >> ')' )
 				>> -info
 				;
 
-		mem = tok.mem [_val = make_shared<Stmt>()()]
-				>> tok.identifier
+		mem = tok.mem
+				>> tok.identifier [_val = make_shared<Memory>()(_1)]
 				>> ":" >> "("
-				>> mem_char
-				>> *(tok.reader >> tok.assign >> tok.identifier)
-				>> *(tok.writer >> tok.assign >> tok.identifier)
-				>> *(tok.readwriter >> tok.assign >> tok.identifier)
+				>> *(mem_dtype(_val) | mem_depth(_val) | mem_readlat(_val)
+					| mem_writelat(_val) | mem_ruw(_val) | mem_reader(_val)
+					| mem_writer(_val) | mem_readwriter(_val))
 				>> ")"
 				;
 
-		mem_char = mem_dtype [at_c<0>(_val)=_1]
-				>> mem_depth [at_c<1>(_val)=_1]
-                >> mem_readlat [at_c<2>(_val)=_1]
-				>> mem_writelat [at_c<3>(_val)=_1]
-				>> mem_ruw [at_c<4>(_val)=_1]
+		mem_dtype = tok.dtype >> tok.assign
+				>> type [bind(&Memory::setDType, _r1, _1)]
 				;
 
-		mem_dtype = tok.dtype >> tok.assign >> type [_val = _1];
-		mem_depth = tok.depth >> tok.assign >> tok.int_;
-		mem_readlat = tok.readlat >> tok.assign >> tok.int_;
-		mem_writelat = tok.writelat >> tok.assign >> tok.int_;
+		mem_depth = tok.depth >> tok.assign
+				>> tok.int_ [bind(&Memory::setDepth, _r1, _1)]
+				;
+
+		mem_readlat = tok.readlat >> tok.assign
+				>> tok.int_ [bind(&Memory::setReadLatency, _r1, _1)]
+				;
+
+		mem_writelat = tok.writelat >> tok.assign
+				>> tok.int_ [bind(&Memory::setWriteLatency, _r1, _1)]
+				;
+
 		mem_ruw = tok.ruw >> tok.assign >>
-				(tok.old [_val = MemoryCharacteristics::RuwFlag::OLD]
-				| tok.new_ [_val = MemoryCharacteristics::RuwFlag::NEW]
-				| tok.undefined [_val = MemoryCharacteristics::RuwFlag::UNDEFINED]
-				);
+				(tok.old [_a = Memory::RuwFlag::OLD]
+				| tok.new_ [_a = Memory::RuwFlag::NEW]
+				| tok.undefined [_a = Memory::RuwFlag::UNDEFINED]
+				) [bind(&Memory::setRuwFlag, _r1, _a)]
+				;
 
-		inst = tok.inst [_val = make_shared<Stmt>()()]
+		mem_reader = tok.reader >> tok.assign
 				>> tok.identifier
+				;
+
+		mem_writer = tok.writer >> tok.assign
+				>> tok.identifier
+				;
+
+		mem_readwriter = tok.readwriter >> tok.assign
+				>> tok.identifier
+				;
+
+		inst = tok.inst
+				>> (tok.identifier
 				>> tok.of
-				>> tok.identifier
-				>> -info
+				>> tok.identifier) [_val = make_shared<Instance>()(_3, _1)]
+				>> -info [bind(&Stmt::setInfo, _val, _1)]
 				;
 
-		node = tok.node [_val = make_shared<Stmt>()()]
-				>> tok.identifier
+		node = tok.node
+				>> (tok.identifier
 				>> "="
-				>> exp_
-				>> -info
+				>> exp_) [_val = make_shared<Node>()(_1, _2)]
+				>> -info [bind(&Stmt::setInfo, _val, _1)]
 				;
 
-		connect = exp_ [_val = make_shared<Stmt>()()]
+		connect = (exp_
 				>> tok.connect
-				>> exp_
-				>> -info
+				>> exp_) [_val = make_shared<Connect>()(_1, _3)]
+				>> -info [bind(&Connect::setInfo, _val, _1)]
 				;
 
-		partconnect = exp_ [_val = make_shared<Stmt>()()]
+		partconnect = (exp_
 				>> tok.partconnect
-				>> exp_
-				>> -info
+				>> exp_) [_val = make_shared<Connect>()(_1, _3, true)]
+				>> -info [bind(&Connect::setInfo, _val, _1)]
 				;
 
-		invalidate = exp_ [_val = make_shared<Stmt>()()]
+		invalidate = exp_ [_val = make_shared<Invalid>()(_1)]
 				>> tok.is >> tok.invalid
-				>> -info
+				>> -info [bind(&Invalid::setInfo, _val, _1)]
 				;
 
-		conditional = tok.when [_val = make_shared<Stmt>()()]
-				>> exp_
+		conditional = tok.when
+				>> exp_ [_val = make_shared<Conditional>()(_1)]
 				>> ":"
-				>> -info
-				>> -stmt_suite
+				>> -info  [bind(&Conditional::setInfo, _val, _1)]
+				>> -(stmt [bind(&Conditional::addIfStmt, _val, _1)]
+					| stmt_suite [bind(&Conditional::addIfStmtList, _val, _1)]
+					)
 				>> -(tok.else_ >>
-					 (conditional
-					 | (':' >> -info >> -stmt_suite)
+					 (conditional [bind(&Conditional::addElseStmt, _val, _1)]
+					 | (':'
+						>> -info [bind(&Conditional::setElseInfo, _val, _1)]
+						>> (stmt  [bind(&Conditional::addElseStmt, _val, _1)]
+						   | stmt_suite [bind(&Conditional::addElseStmtList, _val, _1)]
+						   )
+					   )
 					 )
 					)
 				;
 
-		stop = tok.stop [_val = make_shared<Stmt>()()]
+		stop = tok.stop
 				>> "("
-				>> exp_ >> exp_ >> tok.int_
+				>> (exp_ >> exp_ >> tok.int_) [_val = make_shared<Stop>()(_1, _2, _3)]
 				>> ")"
-				>> -info
+				>> -info [bind(&Stop::setInfo, _val, _1)]
 				;
 
-		printf_ = tok.printf [_val = make_shared<Stmt>()()]
+		printf_ = tok.printf
 				>> "("
-				>> exp_ >> exp_
-				>> tok.string_double
-				>> *exp_
+				>> (exp_ >> exp_
+				>> tok.string_double) [_val = make_shared<Printf>()(_1, _2, _3)]
+				>> *exp_ /*[bind(&Printf::addArgument, _val, _1)]*/
 				>> ")"
-				>> -info
+				>> -info [bind(&Printf::setInfo, _val, _1)]
 				;
 
-		empty = tok.skip [_val = make_shared<Stmt>()()]
-				>> -info
+		empty = tok.skip [_val = make_shared<Empty>()()]
+				>> -info  [bind(&Empty::setInfo, _val, _1)]
 				;
 
 		reference = tok.identifier [_val = make_shared<Reference>()(_1)]
@@ -307,13 +322,11 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				| eps [_val = _r1]
 				;
 
-		exp_int = (tok.UInt
-				   | tok.SInt) [_val = make_shared<Expression>()()]
-			    >> -("<" >> tok.int_ >> ">")
+		exp_int = type_int [_a = _1]
 				>> "("
-				>> ( tok.int_
-					| tok.string_double)
-				>> ")"
+				>> ( tok.int_ [_val = make_shared<Constant>()(_a, _1)]
+					| tok.string_double [_val = make_shared<Constant>()(_a, _1)]
+				   ) >> ")"
 				;
 
 		exp_subfield = "."
@@ -330,12 +343,14 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> "]" >> exp_helper(_a) [_val = _1]
 				;
 
-		mux = tok.mux [_val = make_shared<Expression>()()]
-				>> "(" >> exp_ >> exp_ >> exp_ >> ")"
+		mux = tok.mux >> "(" >> (exp_ >> exp_ >>
+				exp_ )[_val = make_shared<Mux>()(_1, _2, _3)]
+				>> ")"
 				;
 
-		validif = tok.validif [_val = make_shared<Expression>()()]
-				>> "(" >> exp_ >> exp_ >> ")"
+		validif = tok.validif >> "(" >> (exp_
+				>> exp_) [_val = make_shared<CondValid>()(_1, _2)]
+				>> ")"
 				;
 
 		primop = tok.primop [_val = gen_primop()(_1)]
@@ -383,24 +398,33 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
     qi::rule<Iterator, std::shared_ptr<TypeInt>()> type_int;
     qi::rule<Iterator, std::shared_ptr<TypeBundle>()> type_bundle;
     qi::rule<Iterator, std::shared_ptr<TypeVector>()> type_vector;
-    qi::rule<Iterator, std::shared_ptr<Field>()> field;
+    qi::rule<Iterator, std::shared_ptr<Field>(), qi::locals<bool> > field;
 
-    qi::rule<Iterator, std::shared_ptr<Stmt>()> stmt, wire, reg, mem, inst,
-    		node, connect, partconnect, invalidate, conditional, stop, printf_,
-			empty, stmt_group, stmt_suite;
+    qi::rule<Iterator, std::shared_ptr<Stmt>()> stmt;
+    qi::rule<Iterator, std::shared_ptr<Wire>()> wire;
+    qi::rule<Iterator, std::shared_ptr<Reg>()> reg;
+    qi::rule<Iterator, std::shared_ptr<Memory>()> mem;
+    qi::rule<Iterator, std::shared_ptr<Instance>() > inst;
+    qi::rule<Iterator, std::shared_ptr<Node>()> node;
+    qi::rule<Iterator, std::shared_ptr<Connect>()> connect, partconnect;
+    qi::rule<Iterator, std::shared_ptr<Invalid>()> invalidate;
+    qi::rule<Iterator, std::shared_ptr<Stop>()> stop;
+    qi::rule<Iterator, std::shared_ptr<Printf>()> printf_;
+    qi::rule<Iterator, std::shared_ptr<Empty>()> empty;
+
+    qi::rule<Iterator, std::shared_ptr<Conditional>()> conditional;
+    qi::rule<Iterator, std::vector<std::shared_ptr<Stmt> >()> stmt_list, stmt_suite;
 
     qi::rule<Iterator, void(std::string)> reset_block, simple_reset, simple_reset0;
 
-    qi::rule<Iterator, MemoryCharacteristics()> mem_char;
-    qi::rule<Iterator, std::shared_ptr<Type>()> mem_dtype;
-    qi::rule<Iterator, int()> mem_depth;
-    qi::rule<Iterator, int()> mem_readlat;
-    qi::rule<Iterator, int()> mem_writelat;
-    qi::rule<Iterator, MemoryCharacteristics::RuwFlag()> mem_ruw;
+    qi::rule<Iterator, void(std::shared_ptr<Memory>)> mem_dtype, mem_depth,
+    		mem_readlat, mem_writelat, mem_reader, mem_writer, mem_readwriter;
+    qi::rule<Iterator, void(std::shared_ptr<Memory>), qi::locals<Memory::RuwFlag> > mem_ruw;
 
     qi::rule<Iterator, std::shared_ptr<Expression>(), qi::locals<std::shared_ptr<Expression> > >  exp_;
     qi::rule<Iterator, std::shared_ptr<Expression>(std::shared_ptr<Expression>) > exp_helper;
-    qi::rule<Iterator, std::shared_ptr<Expression>()> exp_int, mux, validif;
+    qi::rule<Iterator, std::shared_ptr<Expression>()> mux, validif;
+    qi::rule<Iterator, std::shared_ptr<Constant>(), qi::locals<std::shared_ptr<TypeInt> > > exp_int;
     qi::rule<Iterator, std::shared_ptr<Reference>()> reference;
 
     qi::rule<Iterator,
