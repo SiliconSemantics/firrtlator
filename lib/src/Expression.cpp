@@ -4,6 +4,64 @@
 
 namespace Firrtlator {
 
+typedef enum { MALE, FEMALE, BI } Gender;
+
+Expression::Expression() : mGender(MALE) {}
+
+Expression::Expression(Gender g) : mGender(g) {}
+
+Expression::Gender Expression::getGender() {
+	return mGender;
+}
+
+Reference::Reference() : Reference("") {}
+
+Reference::Reference(std::string id) : mId(id), mTo(nullptr) {}
+
+bool Reference::isResolved() {
+	return (mTo != nullptr && mTo != 0);
+}
+
+Constant::Constant() : Constant(nullptr, -1, UNDEFINED) {}
+
+Constant::Constant(std::shared_ptr<TypeInt> type, int val,
+		GenerateHint hint)
+: mType(type), mVal(val), mHint(hint) {}
+
+Constant::Constant(std::shared_ptr<TypeInt> type, std::string val,
+		GenerateHint hint)
+: mType(type), mHint(hint) {
+	mVal = 0; //TODO: convert
+}
+
+SubField::SubField() : SubField(nullptr, nullptr) {}
+
+SubField::SubField(std::shared_ptr<Reference> id, std::shared_ptr<Expression> of)
+: mId(id), mOf(of) {}
+
+SubIndex::SubIndex() : SubIndex(-1, nullptr) {}
+
+SubIndex::SubIndex(int index, std::shared_ptr<Expression> of)
+: mIndex(index), mOf(of) {}
+
+SubAccess::SubAccess() : SubAccess(nullptr, nullptr) {}
+
+SubAccess::SubAccess(std::shared_ptr<Reference> expr,
+		std::shared_ptr<Expression> of)
+: mOf(of), mExp(expr) {}
+
+Mux::Mux() : Mux(nullptr, nullptr, nullptr) {}
+
+Mux::Mux(std::shared_ptr<Expression> sel, std::shared_ptr<Expression> a,
+		std::shared_ptr<Expression> b)
+: mSel(sel), mA(a), mB(b) {}
+
+CondValid::CondValid() : CondValid(nullptr, nullptr) {}
+
+CondValid::CondValid(std::shared_ptr<Expression> sel,
+		std::shared_ptr<Expression> a)
+: mSel(sel), mA(a) {}
+
 const bool PrimOp::lookup(std::string v, Operation &op) {
 	static const std::map<std::string, Operation> map =	{
 		{"add", ADD}, {"sub", SUB }, {"mul", MUL },
@@ -81,6 +139,20 @@ std::shared_ptr<PrimOp> PrimOp::generate(const std::string &s) {
 	}
 
 	return generate(op);
+}
+
+void PrimOp::addOperand(std::shared_ptr<Expression> o) {
+	if (mOperands.size() == mNumOperands) {
+		throw std::runtime_error("Too many operands");
+	}
+	mOperands.push_back(o);
+}
+
+void PrimOp::addParameter(int p) {
+	if (mParameters.size() == mNumParameters) {
+		throw std::runtime_error("Too many parameters");
+	}
+	mParameters.push_back(p);
 }
 
 }

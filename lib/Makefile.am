@@ -3,11 +3,16 @@ pkginclude_HEADERS = include/Firrtlator.h include/IR.h
 lib_LTLIBRARIES = libfirrtlator.la
 
 libfirrtlator_la_SOURCES = \
-    src/Firrtlator.cpp \
-    src/IRNode.cpp \
     src/Circuit.cpp \
+    src/Expression.cpp \
+    src/IRNode.cpp \
+    src/Memory.cpp \
     src/Module.cpp \
-    src/Expressions.cpp \
+    src/Firrtlator.cpp \
+    src/Parameter.cpp \
+    src/Port.cpp \
+    src/Stmt.cpp \
+    src/Type.cpp \
 	frontends/generic/src/Frontends.cpp \
 	frontends/firrtl/src/FirrtlFrontend.cpp \
 	backends/firrtl/src/FirrtlBackend.cpp \

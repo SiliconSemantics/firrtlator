@@ -21,32 +21,4 @@
  */
 
 #include "IR.h"
-
 #include "IndentationBuffer.h"
-
-namespace Firrtlator {
-
-Circuit::Circuit() {}
-
-Circuit::Circuit(std::string id) : IRNode(id) {}
-
-void Circuit::addModule(std::shared_ptr<Module> mod) {
-	mModules.push_back(mod);
-}
-
-void Circuit::emit(std::ostream& os) const {
-	os << "circuit " << mId << " :";
-
-	if (mInfo) {
-		os << *mInfo;
-	}
-
-	os << indent << endl;
-
-	for (auto m : mModules)
-		os << *m << endl;
-
-	os << dedent << endl;
-}
-
-}

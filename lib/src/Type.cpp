@@ -21,32 +21,59 @@
  */
 
 #include "IR.h"
-
 #include "IndentationBuffer.h"
 
 namespace Firrtlator {
 
-Circuit::Circuit() {}
+Type::Type() : mBasetype(UNDEFINED) {}
 
-Circuit::Circuit(std::string id) : IRNode(id) {}
+Type::Type(Basetype type) : mBasetype(type) {}
 
-void Circuit::addModule(std::shared_ptr<Module> mod) {
-	mModules.push_back(mod);
+TypeInt::TypeInt() : TypeInt(false) {}
+
+TypeInt::TypeInt(bool sign, int width)
+: mWidth(width), mSigned(sign), Type(INT) {}
+
+void TypeInt::setWidth(int width) {
+	mWidth = width;
 }
 
-void Circuit::emit(std::ostream& os) const {
-	os << "circuit " << mId << " :";
+int TypeInt::getWidth() {
+	return mWidth;
+}
 
-	if (mInfo) {
-		os << *mInfo;
-	}
+bool TypeInt::getSigned() {
+	return mSigned;
+}
 
-	os << indent << endl;
+void TypeInt::setSigned(bool sign) {
+	mSigned = sign;
+}
 
-	for (auto m : mModules)
-		os << *m << endl;
+TypeClock::TypeClock() : Type(CLOCK) { }
 
-	os << dedent << endl;
+Field::Field() : Field("", nullptr) {}
+Field::Field(std::string id, std::shared_ptr<Type> type, bool flip)
+: mFlip(flip), mType(type), IRNode(id) {}
+
+void Field::setType(std::shared_ptr<Type> t) {
+	mType = t;
+}
+
+void Field::setFlip(bool flip) {
+	mFlip = flip;
+}
+
+TypeBundle::TypeBundle() : Type(BUNDLE) {}
+void TypeBundle::addField(std::shared_ptr<Field> field) {
+	mFields.push_back(field);
+}
+
+TypeVector::TypeVector() : mSize(0), Type(VECTOR) { }
+
+void TypeVector::setSize(int size) {
+	mSize = size;
 }
 
 }
+

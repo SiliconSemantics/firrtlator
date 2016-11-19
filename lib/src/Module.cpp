@@ -22,12 +22,47 @@
 
 #include "IR.h"
 #include "IndentationBuffer.h"
+#include "Util.h"
 
 namespace Firrtlator {
 
+Module::Module() : Module("") {}
+Module::Module(std::string id, bool external)
+: IRNode(id), mExternal(external) {}
+
+void Module::addPort(std::shared_ptr<Port> port) {
+	mPorts.push_back(port);
+}
+void Module::addStmt(std::shared_ptr<Stmt> stmt) {
+	throwAssert(!mExternal, "Cannot add statements to extmodule");
+
+	mStmts.push_back(stmt);
+}
+void Module::setDefname(std::string defname) {
+	throwAssert(mExternal, "Cannot assign defname to module");
+
+	mDefname = defname;
+}
+void Module::addParameter(std::shared_ptr<Parameter> param) {
+	throwAssert(mExternal, "Cannot add parameter to module");
+
+	mParameters.push_back(param);
+}
+
 void Module::emit(std::ostream& os) const {
 	os << (mExternal ? "extmodule" : "module");
-	os << " " << mId << " : " << endl;
+	os << " " << mId << " : ";
+
+	if (mInfo) {
+		os << *mInfo;
+	}
+
+	os << indent << endl;
+
+	for (auto p : mPorts)
+		os << *p;
+
+	os << dedent << endl;
 }
 
 }

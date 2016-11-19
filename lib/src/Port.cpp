@@ -21,32 +21,28 @@
  */
 
 #include "IR.h"
-
 #include "IndentationBuffer.h"
 
 namespace Firrtlator {
 
-Circuit::Circuit() {}
+Port::Port() : Port("", INPUT, nullptr) { }
 
-Circuit::Circuit(std::string id) : IRNode(id) {}
+Port::Port(std::string id, Direction dir, std::shared_ptr<Type> type)
+: IRNode(id), mDirection(dir), mType(type) {}
 
-void Circuit::addModule(std::shared_ptr<Module> mod) {
-	mModules.push_back(mod);
+void Port::setDirection(Direction dir) {
+	mDirection = dir;
 }
 
-void Circuit::emit(std::ostream& os) const {
-	os << "circuit " << mId << " :";
+Port::Direction Port::getDirection() {
+	return mDirection;
+}
 
-	if (mInfo) {
-		os << *mInfo;
-	}
-
-	os << indent << endl;
-
-	for (auto m : mModules)
-		os << *m << endl;
-
-	os << dedent << endl;
+void Port::emit(std::ostream& os) const {
+	os << (mDirection == INPUT ? "input" : "output");
+	os << " " << mId << " :";
+	os << endl;
 }
 
 }
+	

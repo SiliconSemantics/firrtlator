@@ -26,10 +26,34 @@
 
 namespace Firrtlator {
 
+IRNode::~IRNode() {}
+
+IRNode::IRNode() : IRNode("") {}
+
+IRNode::IRNode(std::string id) : mId(id) {}
+
+std::string IRNode::getId() { return mId; }
+
+void IRNode::setId(std::string id) { mId = id; }
+
+std::shared_ptr<Info> IRNode::getInfo() { return mInfo; }
+
+void IRNode::setInfo(std::shared_ptr<Info> info) {
+	mInfo = info;
+}
+
+bool IRNode::isDeclaration() { return (mId.length() != 0); }
+
 std::ostream& operator<< (std::ostream& os, const Firrtlator::IRNode& n) {
 	n.emit(os);
 	return os;
 }
+
+Info::Info(std::string value) : mValue(value) {}
+
+void Info::setValue(std::string value) { mValue = value; }
+
+std::string Info::getValue() { return mValue; }
 
 std::ostream& operator<< (std::ostream &os, const Info &info)
 {
