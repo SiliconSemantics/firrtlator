@@ -20,43 +20,12 @@
  * SOFTWARE.
  */
 
-#pragma once
-
-#include "IR.h"
+#include "Visitor.h"
 
 namespace Firrtlator {
 
-class Visitor {
-public:
-	virtual ~Visitor();
-	virtual void visit(Circuit &) = 0;
-	virtual void visit(Module &) = 0;
-	virtual void visit(Port &) = 0;
-	virtual void visit(Parameter &) = 0;
-	virtual void visit(TypeInt &) = 0;
-	virtual void visit(TypeClock &) = 0;
-	virtual void visit(Field &) = 0;
-	virtual void visit(TypeBundle &) = 0;
-	virtual void visit(TypeVector &) = 0;
-	virtual void visit(Wire &) = 0;
-	virtual void visit(Reg &) = 0;
-	virtual void visit(Instance &) = 0;
-	virtual void visit(Memory &) = 0;
-	virtual void visit(Node &) = 0;
-	virtual void visit(Connect &) = 0;
-	virtual void visit(Invalid &) = 0;
-	virtual void visit(Conditional &) = 0;
-	virtual void visit(Stop &) = 0;
-	virtual void visit(Printf &) = 0;
-	virtual void visit(Empty &) = 0;
-	virtual void visit(Reference &) = 0;
-	virtual void visit(Constant &) = 0;
-	virtual void visit(SubField &) = 0;
-	virtual void visit(SubIndex &) = 0;
-	virtual void visit(SubAccess &) = 0;
-	virtual void visit(Mux &) = 0;
-	virtual void visit(CondValid &) = 0;
-	virtual void visit(PrimOp &) = 0;
-};
+Visitor::~Visitor() {
 
+}
+ 
 }

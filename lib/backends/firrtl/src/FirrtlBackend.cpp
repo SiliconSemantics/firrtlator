@@ -22,19 +22,52 @@
 
 #include "FirrtlBackend.h"
 
-#include "IndentationBuffer.h"
-
 #include <iostream>
+#include "../../generic/include/StreamIndentation.h"
 
 namespace Firrtlator {
+namespace Backend {
+namespace Firrtl {
 
-Backend::~Backend() {
-
-}
-
-void FirrtlBackend::generate(std::shared_ptr<Circuit> ir) {
+void Backend::generate(std::shared_ptr<Circuit> ir) {
 	std::cout << "Test" << endl;
 	std::cout << *ir;
 }
 
+
+Visitor::~Visitor() {
+
+}
+
+void Visitor::visit(Circuit &) { }
+void Visitor::visit(Module &) { }
+void Visitor::visit(Port &) { }
+void Visitor::visit(Parameter &) { }
+void Visitor::visit(TypeInt &) { }
+void Visitor::visit(TypeClock &) { }
+void Visitor::visit(Field &) { }
+void Visitor::visit(TypeBundle &) { }
+void Visitor::visit(TypeVector &) { }
+void Visitor::visit(Wire &) { }
+void Visitor::visit(Reg &) { }
+void Visitor::visit(Instance &) { }
+void Visitor::visit(Memory &) { }
+void Visitor::visit(Node &) { }
+void Visitor::visit(Connect &) { }
+void Visitor::visit(Invalid &) { }
+void Visitor::visit(Conditional &) { }
+void Visitor::visit(Stop &) { }
+void Visitor::visit(Printf &) { }
+void Visitor::visit(Empty &) { }
+void Visitor::visit(Reference &) { }
+void Visitor::visit(Constant &) { }
+void Visitor::visit(SubField &) { }
+void Visitor::visit(SubIndex &) { }
+void Visitor::visit(SubAccess &) { }
+void Visitor::visit(Mux &) { }
+void Visitor::visit(CondValid &) { }
+void Visitor::visit(PrimOp &) { }
+
+}
+}
 }

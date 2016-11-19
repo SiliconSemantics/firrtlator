@@ -23,12 +23,50 @@
 #pragma once
 
 #include "FirrtlatorBackend.h"
+#include "Visitor.h"
 
 namespace Firrtlator {
+namespace Backend {
+namespace Firrtl {
 
-class FirrtlBackend : public Backend {
+class Backend : public ::Firrtlator::Backend::BackendBase {
 public:
 	virtual void generate(std::shared_ptr<Circuit> ir);
 };
 
+class Visitor : public ::Firrtlator::Visitor {
+public:
+	virtual ~Visitor();
+	virtual void visit(Circuit &);
+	virtual void visit(Module &);
+	virtual void visit(Port &);
+	virtual void visit(Parameter &);
+	virtual void visit(TypeInt &);
+	virtual void visit(TypeClock &);
+	virtual void visit(Field &);
+	virtual void visit(TypeBundle &);
+	virtual void visit(TypeVector &);
+	virtual void visit(Wire &);
+	virtual void visit(Reg &);
+	virtual void visit(Instance &);
+	virtual void visit(Memory &);
+	virtual void visit(Node &);
+	virtual void visit(Connect &);
+	virtual void visit(Invalid &);
+	virtual void visit(Conditional &);
+	virtual void visit(Stop &);
+	virtual void visit(Printf &);
+	virtual void visit(Empty &);
+	virtual void visit(Reference &);
+	virtual void visit(Constant &);
+	virtual void visit(SubField &);
+	virtual void visit(SubIndex &);
+	virtual void visit(SubAccess &);
+	virtual void visit(Mux &);
+	virtual void visit(CondValid &);
+	virtual void visit(PrimOp &);
+};
+
+}
+}
 }

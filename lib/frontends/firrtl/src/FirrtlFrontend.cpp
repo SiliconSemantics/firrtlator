@@ -25,8 +25,6 @@
 #include "FirrtlFrontendLexer.h"
 #include "FirrtlFrontendGrammar.h"
 
-#include "FirrtlBackend.h"
-
 #include <iostream>
 
 namespace Firrtlator {
@@ -63,9 +61,6 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 	if (!res) {
 		return false;
 	}
-
-	FirrtlBackend backend;
-	backend.generate(c);
 
 	return true;
 }

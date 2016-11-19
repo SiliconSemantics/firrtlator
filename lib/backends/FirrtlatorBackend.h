@@ -25,11 +25,13 @@
 #include "IR.h"
 
 namespace Firrtlator {
+namespace Backend {
 
-class Backend {
+class BackendBase {
 public:
-    virtual ~Backend();
+    virtual ~BackendBase() {};
     virtual void generate(std::shared_ptr<Circuit> ir) = 0;
 };
 
+}
 }
