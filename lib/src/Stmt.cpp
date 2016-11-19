@@ -35,11 +35,19 @@ Wire::Wire() : Wire("", nullptr) {}
 Wire::Wire(std::string id, std::shared_ptr<Type> type)
 : mType(type), Stmt(id) {}
 
+void Wire::accept(Visitor& v) {
+
+}
+
 Reg::Reg() : Reg("", nullptr, nullptr) {}
 
 Reg::Reg(std::string id, std::shared_ptr<Type> type,
 		std::shared_ptr<Expression> exp)
 : mType(type), mExp(exp), Stmt(id) {}
+
+void Reg::accept(Visitor& v) {
+
+}
 
 Instance::Instance() : Instance("", "") {}
 
@@ -49,10 +57,18 @@ Instance::Instance(std::string id, std::string of)
 Instance::Instance(std::string id, std::shared_ptr<Reference> of)
 : mOf(of), Stmt(id) {}
 
+void Instance::accept(Visitor& v) {
+
+}
+
 Node::Node() : Node("", nullptr) {}
 
 Node::Node(std::string id, std::shared_ptr<Expression> expr)
 : mExpr(expr), Stmt(id) {}
+
+void Node::accept(Visitor& v) {
+
+}
 
 Connect::Connect() : Connect(nullptr, nullptr) {}
 
@@ -61,10 +77,18 @@ Connect::Connect(std::shared_ptr<Expression> to,
 		bool partial)
 : mTo(to), mFrom(from), mPartial(partial) {}
 
+void Connect::accept(Visitor& v) {
+
+}
+
 Invalid::Invalid() : Invalid(nullptr) {}
 
 Invalid::Invalid(std::shared_ptr<Expression> exp)
 : mExp(exp) {}
+
+void Invalid::accept(Visitor& v) {
+
+}
 
 Conditional::Conditional() : Conditional(nullptr) {}
 
@@ -90,12 +114,20 @@ void Conditional::setElseInfo(std::shared_ptr<Info> info) {
 	mElseInfo = info;
 }
 
+void Conditional::accept(Visitor& v) {
+
+}
+
 Stop::Stop() : Stop(nullptr, nullptr, -1) {}
 
 Stop::Stop(std::shared_ptr<Expression> clock,
 		std::shared_ptr<Expression> cond,
 		int code)
 : mClock(clock), mCond(cond), mCode(code) {}
+
+void Stop::accept(Visitor& v) {
+
+}
 
 Printf::Printf() : Printf(nullptr, nullptr, "") {}
 Printf::Printf(std::shared_ptr<Expression> clock,
@@ -105,5 +137,14 @@ Printf::Printf(std::shared_ptr<Expression> clock,
 void Printf::addArgument(std::shared_ptr<Expression> arg) {
 	mArguments.push_back(arg);
 }
+
+void Printf::accept(Visitor& v) {
+
+}
+
+void Empty::accept(Visitor& v) {
+
+}
+
 
 }

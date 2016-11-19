@@ -133,4 +133,8 @@ void Memory::addReadWriterToType(std::string rw) {
 	mType->addField(std::make_shared<Field>(rw, bundle));
 }
 
+void Memory::accept(Visitor& v) {
+
+}
+
 }

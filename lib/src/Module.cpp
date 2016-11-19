@@ -65,4 +65,8 @@ void Module::emit(std::ostream& os) const {
 	os << dedent << endl;
 }
 
+void Module::accept(Visitor& v) {
+
+}
+
 }

@@ -21,4 +21,15 @@
  */
 
 #include "IR.h"
-#include "IndentationBuffer.h"
+
+namespace Firrtlator {
+
+Parameter::Parameter() {
+
+}
+
+void Parameter::accept(Visitor& v) {
+
+}
+
+}

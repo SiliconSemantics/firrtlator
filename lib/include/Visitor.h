@@ -20,37 +20,40 @@
  * SOFTWARE.
  */
 
-#include "IR.h"
-
-#include "IndentationBuffer.h"
+#pragma once
 
 namespace Firrtlator {
 
-Circuit::Circuit() {}
-
-Circuit::Circuit(std::string id) : IRNode(id) {}
-
-void Circuit::addModule(std::shared_ptr<Module> mod) {
-	mModules.push_back(mod);
-}
-
-void Circuit::emit(std::ostream& os) const {
-	os << "circuit " << mId << " :";
-
-	if (mInfo) {
-		os << *mInfo;
-	}
-
-	os << indent << endl;
-
-	for (auto m : mModules)
-		os << *m << endl;
-
-	os << dedent << endl;
-}
-
-void Circuit::accept(Visitor& v) {
-
-}
+class Visitor {
+	virtual ~Visitor();
+	virtual void visit(Circuit &) = 0;
+	virtual void visit(Module &) = 0;
+	virtual void visit(Port &) = 0;
+	virtual void visit(Parameter &) = 0;
+	virtual void visit(TypeInt &) = 0;
+	virtual void visit(TypeClock &) = 0;
+	virtual void visit(Field &) = 0;
+	virtual void visit(TypeBundle &) = 0;
+	virtual void visit(TypeVector &) = 0;
+	virtual void visit(Wire &) = 0;
+	virtual void visit(Reg &) = 0;
+	virtual void visit(Instance &) = 0;
+	virtual void visit(Memory &) = 0;
+	virtual void visit(Node &) = 0;
+	virtual void visit(Connect &) = 0;
+	virtual void visit(Invalid &) = 0;
+	virtual void visit(Conditional &) = 0;
+	virtual void visit(Stop &) = 0;
+	virtual void visit(Printf &) = 0;
+	virtual void visit(Empty &) = 0;
+	virtual void visit(Reference &) = 0;
+	virtual void visit(Constant &) = 0;
+	virtual void visit(SubField &) = 0;
+	virtual void visit(SubIndex &) = 0;
+	virtual void visit(SubAccess &) = 0;
+	virtual void visit(Mux &) = 0;
+	virtual void visit(CondValid &) = 0;
+	virtual void visit(PrimOp &) = 0;
+};
 
 }

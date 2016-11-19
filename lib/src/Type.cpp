@@ -50,7 +50,15 @@ void TypeInt::setSigned(bool sign) {
 	mSigned = sign;
 }
 
+void TypeInt::accept(Visitor& v) {
+
+}
+
 TypeClock::TypeClock() : Type(CLOCK) { }
+
+void TypeClock::accept(Visitor& v) {
+
+}
 
 Field::Field() : Field("", nullptr) {}
 Field::Field(std::string id, std::shared_ptr<Type> type, bool flip)
@@ -64,15 +72,27 @@ void Field::setFlip(bool flip) {
 	mFlip = flip;
 }
 
+void Field::accept(Visitor& v) {
+
+}
+
 TypeBundle::TypeBundle() : Type(BUNDLE) {}
 void TypeBundle::addField(std::shared_ptr<Field> field) {
 	mFields.push_back(field);
+}
+
+void TypeBundle::accept(Visitor& v) {
+
 }
 
 TypeVector::TypeVector() : mSize(0), Type(VECTOR) { }
 
 void TypeVector::setSize(int size) {
 	mSize = size;
+}
+
+void TypeVector::accept(Visitor& v) {
+
 }
 
 }

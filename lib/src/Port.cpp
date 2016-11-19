@@ -44,5 +44,9 @@ void Port::emit(std::ostream& os) const {
 	os << endl;
 }
 
+void Port::accept(Visitor& v) {
+
+}
+
 }
 	

@@ -39,6 +39,7 @@ class Module;
 class Stmt;
 class Expression;
 class Type;
+class Visitor;
 
 class Info {
 private:
@@ -61,6 +62,7 @@ public:
 	void setInfo(std::shared_ptr<Info> info);
 	bool isDeclaration();
 	virtual void emit(std::ostream& os) const {/*TODO: =0 once implemented*/};
+	virtual void accept(Visitor& v) = 0;
 protected:
 	std::shared_ptr<Info> mInfo;
 	std::string mId;
@@ -76,6 +78,7 @@ public:
 	Circuit(std::string id, std::shared_ptr<Info> info);
 	void addModule(std::shared_ptr<Module> mod);
 	virtual void emit(std::ostream& os) const;
+	virtual void accept(Visitor& v);
 private:
 	std::vector<std::shared_ptr<Module> > mModules;
 };
@@ -88,6 +91,7 @@ public:
 	void setDirection(Direction dir);
 	Direction getDirection();
 	virtual void emit(std::ostream& os) const;
+	virtual void accept(Visitor& v);
 private:
 	Direction mDirection;
 	std::shared_ptr<Type> mType;
@@ -98,6 +102,7 @@ public:
 	typedef enum { INT, CLOCK, BUNDLE, VECTOR, UNDEFINED } Basetype;
 	Type();
 	Type(Basetype type);
+	virtual void accept(Visitor& v) = 0;
 protected:
 	Basetype mBasetype;
 };
@@ -112,6 +117,7 @@ public:
 
 	bool getSigned();
 	void setSigned(bool sign);
+	virtual void accept(Visitor& v);
 private:
 	int mWidth;
 	bool mSigned;
@@ -120,6 +126,7 @@ private:
 class TypeClock : public Type {
 public:
 	TypeClock();
+	virtual void accept(Visitor& v);
 };
 
 class Field : public IRNode {
@@ -129,6 +136,7 @@ public:
 
 	void setType(std::shared_ptr<Type> t);
 	void setFlip(bool flip);
+	virtual void accept(Visitor& v);
 private:
 	bool mFlip;
 	std::shared_ptr<Type> mType;
@@ -138,6 +146,7 @@ class TypeBundle : public Type {
 public:
 	TypeBundle();
 	void addField(std::shared_ptr<Field> field);
+	virtual void accept(Visitor& v);
 private:
 	std::vector<std::shared_ptr<Field> > mFields;
 };
@@ -146,6 +155,7 @@ class TypeVector : public Type {
 public:
 	TypeVector();
 	void setSize(int size);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Type> mType;
 	int mSize;
@@ -153,7 +163,8 @@ private:
 
 class Parameter : IRNode {
 public:
-	Parameter() {}
+	Parameter();
+	virtual void accept(Visitor& v);
 };
 
 class Module : public IRNode {
@@ -165,6 +176,7 @@ public:
 	void setDefname(std::string defname);
 	void addParameter(std::shared_ptr<Parameter> param);
 	virtual void emit(std::ostream& os) const;
+	virtual void accept(Visitor& v);
 private:
 	bool mExternal;
 	std::string mDefname;
@@ -177,12 +189,14 @@ class Stmt : public IRNode {
 public:
 	Stmt();
 	Stmt(std::string id);
+	virtual void accept(Visitor& v) = 0;
 };
 
 class Wire : public Stmt {
 public:
 	Wire();
 	Wire(std::string id, std::shared_ptr<Type> type);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Type> mType;
 };
@@ -192,6 +206,7 @@ public:
 	Reg();
 	Reg(std::string id, std::shared_ptr<Type> type,
 			std::shared_ptr<Expression> exp);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Type> mType;
 	std::shared_ptr<Expression> mExp;
@@ -207,6 +222,7 @@ public:
 	void setWriteLatency(int lat);
 	void setRuwFlag(RuwFlag flag);
 	void addReader(std::string r);
+	virtual void accept(Visitor& v);
 protected:
 	std::shared_ptr<Type> mDType = nullptr;
 	std::shared_ptr<TypeBundle> mType = nullptr;
@@ -230,6 +246,7 @@ public:
 	Instance();
 	Instance(std::string id, std::string of);
 	Instance(std::string id, std::shared_ptr<Reference> of);
+	virtual void accept(Visitor& v);
 private:
 	std::string mOfIdentifier;
 	std::shared_ptr<Reference> mOf;
@@ -239,6 +256,7 @@ class Node : public Stmt {
 public:
 	Node();
 	Node(std::string id, std::shared_ptr<Expression> expr);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mExpr;
 };
@@ -249,6 +267,7 @@ public:
 	Connect(std::shared_ptr<Expression> to,
 			std::shared_ptr<Expression> from,
 			bool partial = false);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mTo;
 	std::shared_ptr<Expression> mFrom;
@@ -259,6 +278,7 @@ class Invalid : public Stmt {
 public:
 	Invalid();
 	Invalid(std::shared_ptr<Expression> exp);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mExp;
 };
@@ -272,6 +292,7 @@ public:
 	void addElseStmt(std::shared_ptr<Stmt> stmt);
 	void addElseStmtList(std::vector<std::shared_ptr<Stmt> > &stmts);
 	void setElseInfo(std::shared_ptr<Info> info);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mCond;
 	std::vector<std::shared_ptr<Stmt> > mIf;
@@ -285,6 +306,7 @@ public:
 	Stop(std::shared_ptr<Expression> clock,
 			std::shared_ptr<Expression> cond,
 			int code);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mClock;
 	std::shared_ptr<Expression> mCond;
@@ -298,6 +320,7 @@ public:
 			std::shared_ptr<Expression> cond,
 			std::string format);
 	void addArgument(std::shared_ptr<Expression> arg);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mClock;
 	std::shared_ptr<Expression> mCond;
@@ -306,6 +329,8 @@ private:
 };
 
 class Empty : public Stmt {
+public:
+	virtual void accept(Visitor& v);
 };
 
 class Expression : public IRNode {
@@ -314,6 +339,7 @@ public:
 	Expression();
 	Expression(Gender g);
 	Gender getGender();
+	virtual void accept(Visitor& v) = 0;
 private:
 	Gender mGender;
 };
@@ -323,6 +349,7 @@ public:
 	Reference();
 	Reference(std::string id);
 	bool isResolved();
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<IRNode> mTo;
 	std::string mId;
@@ -336,6 +363,7 @@ public:
 			GenerateHint hint = INT);
 	Constant(std::shared_ptr<TypeInt> type, std::string val,
 			GenerateHint hint = STRING);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<TypeInt> mType;
 	int mVal;
@@ -346,6 +374,7 @@ class SubField : public Expression {
 public:
 	SubField();
 	SubField(std::shared_ptr<Reference> id, std::shared_ptr<Expression> of);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mOf;
 	std::shared_ptr<Reference> mId;
@@ -355,6 +384,7 @@ class SubIndex : public Expression {
 public:
 	SubIndex();
 	SubIndex(int index, std::shared_ptr<Expression> of);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mOf;
 	int mIndex;
@@ -365,6 +395,7 @@ public:
 	SubAccess();
 	SubAccess(std::shared_ptr<Reference> expr,
 			std::shared_ptr<Expression> of);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mOf;
 	std::shared_ptr<Reference> mExp;
@@ -375,6 +406,7 @@ public:
 	Mux();
 	Mux(std::shared_ptr<Expression> sel, std::shared_ptr<Expression> a,
 			std::shared_ptr<Expression> b);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mSel;
 	std::shared_ptr<Expression> mA;
@@ -386,6 +418,7 @@ public:
 	CondValid();
 	CondValid(std::shared_ptr<Expression> sel,
 			std::shared_ptr<Expression> a);
+	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mSel;
 	std::shared_ptr<Expression> mA;
@@ -416,6 +449,7 @@ public:
 
 	int numOperands() { return mNumOperands; }
 	int numParameters() {return mNumParameters; }
+	virtual void accept(Visitor& v);
 protected:
 	Operation mOp;
 	std::vector<std::shared_ptr<Expression> > mOperands;

@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2016 Stefan Wallentowitz <wallento@silicon-semantics.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "IR.h"
 
 #include <stdexcept>
@@ -22,6 +44,10 @@ bool Reference::isResolved() {
 	return (mTo != nullptr && mTo != 0);
 }
 
+void Reference::accept(Visitor& v) {
+
+}
+
 Constant::Constant() : Constant(nullptr, -1, UNDEFINED) {}
 
 Constant::Constant(std::shared_ptr<TypeInt> type, int val,
@@ -34,15 +60,27 @@ Constant::Constant(std::shared_ptr<TypeInt> type, std::string val,
 	mVal = 0; //TODO: convert
 }
 
+void Constant::accept(Visitor& v) {
+
+}
+
 SubField::SubField() : SubField(nullptr, nullptr) {}
 
 SubField::SubField(std::shared_ptr<Reference> id, std::shared_ptr<Expression> of)
 : mId(id), mOf(of) {}
 
+void SubField::accept(Visitor& v) {
+
+}
+
 SubIndex::SubIndex() : SubIndex(-1, nullptr) {}
 
 SubIndex::SubIndex(int index, std::shared_ptr<Expression> of)
 : mIndex(index), mOf(of) {}
+
+void SubIndex::accept(Visitor& v) {
+
+}
 
 SubAccess::SubAccess() : SubAccess(nullptr, nullptr) {}
 
@@ -50,17 +88,29 @@ SubAccess::SubAccess(std::shared_ptr<Reference> expr,
 		std::shared_ptr<Expression> of)
 : mOf(of), mExp(expr) {}
 
+void SubAccess::accept(Visitor& v) {
+
+}
+
 Mux::Mux() : Mux(nullptr, nullptr, nullptr) {}
 
 Mux::Mux(std::shared_ptr<Expression> sel, std::shared_ptr<Expression> a,
 		std::shared_ptr<Expression> b)
 : mSel(sel), mA(a), mB(b) {}
 
+void Mux::accept(Visitor& v) {
+
+}
+
 CondValid::CondValid() : CondValid(nullptr, nullptr) {}
 
 CondValid::CondValid(std::shared_ptr<Expression> sel,
 		std::shared_ptr<Expression> a)
 : mSel(sel), mA(a) {}
+
+void CondValid::accept(Visitor& v) {
+
+}
 
 const bool PrimOp::lookup(std::string v, Operation &op) {
 	static const std::map<std::string, Operation> map =	{
@@ -153,6 +203,10 @@ void PrimOp::addParameter(int p) {
 		throw std::runtime_error("Too many parameters");
 	}
 	mParameters.push_back(p);
+}
+
+void PrimOp::accept(Visitor& v) {
+
 }
 
 }
