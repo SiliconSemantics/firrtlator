@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
+#include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
-#include "IndentationBuffer.h"
 #include "Util.h"
 
 namespace Firrtlator {

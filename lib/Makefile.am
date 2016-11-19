@@ -16,7 +16,7 @@ libfirrtlator_la_SOURCES = \
 	frontends/generic/src/Frontends.cpp \
 	frontends/firrtl/src/FirrtlFrontend.cpp \
 	backends/firrtl/src/FirrtlBackend.cpp \
-	backends/generic/src/IndentationBuffer.cpp
+	backends/generic/src/StreamIndentation.cpp
 
 libfirrtlator_la_LDFLAGS = $(AM_LDFLAGS) $(LTLDFLAGS)
 libfirrtlator_la_CPPFLAGS = $(AM_CPPFLAGS) -include $(top_builddir)/config.h \
