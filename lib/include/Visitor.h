@@ -29,34 +29,87 @@ namespace Firrtlator {
 class Visitor {
 public:
 	virtual ~Visitor();
-	virtual void visit(Circuit &) = 0;
-	virtual void visit(Module &) = 0;
-	virtual void visit(Port &) = 0;
-	virtual void visit(Parameter &) = 0;
+
+	virtual bool visit(Circuit &) = 0;
+	virtual void leave(Circuit &){};
+
+	virtual bool visit(Module &) = 0;
+	virtual void leave(Module &){};
+
+	virtual bool visit(Port &) = 0;
+	virtual void leave(Port &){};
+
+	virtual bool visit(Parameter &) = 0;
+	virtual void leave(Parameter &){};
+
 	virtual void visit(TypeInt &) = 0;
+
 	virtual void visit(TypeClock &) = 0;
-	virtual void visit(Field &) = 0;
-	virtual void visit(TypeBundle &) = 0;
-	virtual void visit(TypeVector &) = 0;
-	virtual void visit(Wire &) = 0;
-	virtual void visit(Reg &) = 0;
-	virtual void visit(Instance &) = 0;
-	virtual void visit(Memory &) = 0;
-	virtual void visit(Node &) = 0;
-	virtual void visit(Connect &) = 0;
-	virtual void visit(Invalid &) = 0;
-	virtual void visit(Conditional &) = 0;
-	virtual void visit(Stop &) = 0;
-	virtual void visit(Printf &) = 0;
+
+	virtual bool visit(Field &) = 0;
+	virtual void leave(Field &){};
+
+	virtual bool visit(TypeBundle &) = 0;
+	virtual void leave(TypeBundle &){};
+
+	virtual bool visit(TypeVector &) = 0;
+	virtual void leave(TypeVector &){};
+
+	virtual bool visit(Wire &) = 0;
+	virtual void leave(Wire &){};
+
+	virtual bool visit(Reg &) = 0;
+	virtual void leave(Reg &){};
+
+	virtual bool visit(Instance &) = 0;
+	virtual void leave(Instance &){};
+
+	virtual bool visit(Memory &) = 0;
+	virtual void leave(Memory &){};
+
+	virtual bool visit(Node &) = 0;
+	virtual void leave(Node &){};
+
+	virtual bool visit(Connect &) = 0;
+	virtual void leave(Connect &){};
+
+	virtual bool visit(Invalid &) = 0;
+	virtual void leave(Invalid &){};
+
+	virtual bool visit(Conditional &) = 0;
+	virtual void leave(Conditional &){};
+
+	virtual bool visit(Stop &) = 0;
+	virtual void leave(Stop &){};
+
+	virtual bool visit(Printf &) = 0;
+	virtual void leave(Printf &){};
+
 	virtual void visit(Empty &) = 0;
+
 	virtual void visit(Reference &) = 0;
+
 	virtual void visit(Constant &) = 0;
-	virtual void visit(SubField &) = 0;
-	virtual void visit(SubIndex &) = 0;
-	virtual void visit(SubAccess &) = 0;
-	virtual void visit(Mux &) = 0;
-	virtual void visit(CondValid &) = 0;
-	virtual void visit(PrimOp &) = 0;
+
+	virtual bool visit(SubField &) = 0;
+	virtual void leave(SubField &){};
+
+	virtual bool visit(SubIndex &) = 0;
+	virtual void leave(SubIndex &){};
+
+	virtual bool visit(SubAccess &) = 0;
+	virtual void leave(SubAccess &){};
+
+	virtual bool visit(Mux &) = 0;
+	virtual void leave(Mux &){};
+
+	virtual bool visit(CondValid &) = 0;
+	virtual void leave(CondValid &){};
+
+	virtual bool visit(PrimOp &) = 0;
+	virtual void leave(PrimOp &){};
+
+	// TODO: all PrimOps and default calls base
 };
 
 }

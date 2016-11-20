@@ -24,6 +24,8 @@
 #include "IR.h"
 #include "Util.h"
 
+#include "Visitor.h"
+
 namespace Firrtlator {
 
 Module::Module() : Module("") {}
@@ -49,24 +51,21 @@ void Module::addParameter(std::shared_ptr<Parameter> param) {
 	mParameters.push_back(param);
 }
 
-void Module::emit(std::ostream& os) const {
-	os << (mExternal ? "extmodule" : "module");
-	os << " " << mId << " : ";
-
-	if (mInfo) {
-		os << *mInfo;
-	}
-
-	os << indent << endl;
-
-	for (auto p : mPorts)
-		os << *p;
-
-	os << dedent << endl;
+bool Module::isExternal() {
+	return mExternal;
 }
 
 void Module::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
 
+	for (auto p : mPorts)
+		p->accept(v);
+
+	for (auto s : mStmts)
+		s->accept(v);
+
+	v.leave(*this);
 }
 
 }

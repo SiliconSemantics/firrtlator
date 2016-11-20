@@ -21,6 +21,7 @@
  */
 
 #include "IR.h"
+#include "Visitor.h"
 
 #include <stdexcept>
 
@@ -38,14 +39,18 @@ Expression::Gender Expression::getGender() {
 
 Reference::Reference() : Reference("") {}
 
-Reference::Reference(std::string id) : mId(id), mTo(nullptr) {}
+Reference::Reference(std::string id) : mToString(id), mTo(nullptr) {}
 
 bool Reference::isResolved() {
 	return (mTo != nullptr && mTo != 0);
 }
 
-void Reference::accept(Visitor& v) {
+std::string Reference::getToString() {
+	return mToString;
+}
 
+void Reference::accept(Visitor& v) {
+	v.visit(*this);
 }
 
 Constant::Constant() : Constant(nullptr, -1, UNDEFINED) {}
@@ -60,17 +65,51 @@ Constant::Constant(std::shared_ptr<TypeInt> type, std::string val,
 	mVal = 0; //TODO: convert
 }
 
-void Constant::accept(Visitor& v) {
+std::shared_ptr<TypeInt> Constant::getType() {
+	return mType;
+}
 
+int Constant::getValue() {
+	return mVal;
+}
+
+Constant::GenerateHint Constant::getHint() {
+	return mHint;
+}
+
+std::string Constant::getString() {
+	std::string t = mType->getSigned() ? "SInt" : "UInt";
+	std::string w = std::to_string(mType->getWidth());
+	std::string v = std::to_string(mVal);
+
+	return std::string(t+"<"+w+">("+v+")");
+}
+
+void Constant::accept(Visitor& v) {
+	v.visit(*this);
 }
 
 SubField::SubField() : SubField(nullptr, nullptr) {}
 
 SubField::SubField(std::shared_ptr<Reference> id, std::shared_ptr<Expression> of)
-: mId(id), mOf(of) {}
+: mField(id), mOf(of) {}
+
+std::shared_ptr<Expression> SubField::getOf() {
+	return mOf;
+}
+
+std::shared_ptr<Reference> SubField::getField() {
+	return mField;
+}
 
 void SubField::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
 
+	mOf->accept(v);
+	mField->accept(v);
+
+	v.leave(*this);
 }
 
 SubIndex::SubIndex() : SubIndex(-1, nullptr) {}
@@ -78,18 +117,40 @@ SubIndex::SubIndex() : SubIndex(-1, nullptr) {}
 SubIndex::SubIndex(int index, std::shared_ptr<Expression> of)
 : mIndex(index), mOf(of) {}
 
+std::shared_ptr<Expression> SubIndex::getOf() {
+	return mOf;
+}
+
+int SubIndex::getIndex() {
+	return mIndex;
+}
+
 void SubIndex::accept(Visitor& v) {
 
 }
 
 SubAccess::SubAccess() : SubAccess(nullptr, nullptr) {}
 
-SubAccess::SubAccess(std::shared_ptr<Reference> expr,
+SubAccess::SubAccess(std::shared_ptr<Expression> expr,
 		std::shared_ptr<Expression> of)
 : mOf(of), mExp(expr) {}
 
-void SubAccess::accept(Visitor& v) {
+std::shared_ptr<Expression> SubAccess::getOf() {
+	return mOf;
+}
 
+std::shared_ptr<Expression> SubAccess::getExp() {
+	return mExp;
+}
+
+void SubAccess::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mOf->accept(v);
+	mExp->accept(v);
+
+	v.leave(*this);
 }
 
 Mux::Mux() : Mux(nullptr, nullptr, nullptr) {}
@@ -98,8 +159,27 @@ Mux::Mux(std::shared_ptr<Expression> sel, std::shared_ptr<Expression> a,
 		std::shared_ptr<Expression> b)
 : mSel(sel), mA(a), mB(b) {}
 
-void Mux::accept(Visitor& v) {
+std::shared_ptr<Expression> Mux::getSel() {
+	return mSel;
+}
 
+std::shared_ptr<Expression> Mux::getA() {
+	return mA;
+}
+
+std::shared_ptr<Expression> Mux::getB() {
+	return mB;
+}
+
+void Mux::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mSel->accept(v);
+	mA->accept(v);
+	mB->accept(v);
+
+	v.leave(*this);
 }
 
 CondValid::CondValid() : CondValid(nullptr, nullptr) {}
@@ -108,8 +188,22 @@ CondValid::CondValid(std::shared_ptr<Expression> sel,
 		std::shared_ptr<Expression> a)
 : mSel(sel), mA(a) {}
 
-void CondValid::accept(Visitor& v) {
+std::shared_ptr<Expression> CondValid::getSel() {
+	return mSel;
+}
 
+std::shared_ptr<Expression> CondValid::getA() {
+	return mA;
+}
+
+void CondValid::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mSel->accept(v);
+	mA->accept(v);
+
+	v.leave(*this);
 }
 
 const bool PrimOp::lookup(std::string v, Operation &op) {
@@ -205,8 +299,26 @@ void PrimOp::addParameter(int p) {
 	mParameters.push_back(p);
 }
 
-void PrimOp::accept(Visitor& v) {
+PrimOp::Operation PrimOp::getOp() {
+	return mOp;
+}
 
+std::vector<std::shared_ptr<Expression> > PrimOp::getOperands() {
+	return mOperands;
+}
+
+std::vector<int> PrimOp::getParameters() {
+	return mParameters;
+}
+
+void PrimOp::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	for (auto o : mOperands)
+		o->accept(v);
+
+	v.leave(*this);
 }
 
 }

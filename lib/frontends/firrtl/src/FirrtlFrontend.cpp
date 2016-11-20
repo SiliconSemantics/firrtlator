@@ -31,7 +31,6 @@ namespace Firrtlator {
 
 bool FirrtlFrontend::parseString(std::string::const_iterator begin,
         std::string::const_iterator end) {
-		std::shared_ptr<Circuit> c;
 
 		typedef lex::lexertl::token<std::string::const_iterator,
 				boost::mpl::vector<std::string, int> > token_type;
@@ -53,7 +52,7 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 		return false;*/
 		FirrtlGrammar<iterator_type> g(token_lexer);
 
-		bool res = lex::tokenize_and_parse(begin, end, token_lexer, g, c);
+		bool res = lex::tokenize_and_parse(begin, end, token_lexer, g, mIR);
 
 		if (begin != end)
 			res = false;
@@ -65,8 +64,4 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 	return true;
 }
 
-
-std::shared_ptr<Circuit> FirrtlFrontend::getIR() {
-
-}
 }

@@ -73,6 +73,62 @@ void Memory::addReader(std::string r) {
 	mReaders.push_back(r);
 }
 
+void Memory::addWriter(std::string w) {
+	throwAssert((std::find(mWriters.begin(), mWriters.end(), (w))
+	== mWriters.end()), "writer already defined");
+
+	if (!checkAndUpdateDeferedType())
+		addWriterToType(w);
+
+	mWriters.push_back(w);
+}
+
+void Memory::addReadWriter(std::string rw) {
+	throwAssert((std::find(mReadWriters.begin(), mReadWriters.end(), (rw))
+	== mReadWriters.end()), "ReadWriter already defined");
+
+	if (!checkAndUpdateDeferedType())
+		addReadWriterToType(rw);
+
+	mReadWriters.push_back(rw);
+}
+
+std::shared_ptr<Type> Memory::getDType() {
+	return mDType;
+}
+
+std::shared_ptr<TypeBundle> Memory::getType() {
+	return mType;
+}
+
+std::vector<std::string> Memory::getReaders() {
+	return mReaders;
+}
+
+std::vector<std::string> Memory::getWriters() {
+	return mWriters;
+}
+
+std::vector<std::string> Memory::getReadWriters() {
+	return mReadWriters;
+}
+
+int Memory::getDepth() {
+	return mDepth;
+}
+
+int Memory::getReadlatency() {
+	return mReadlatency;
+}
+
+int Memory::getWritelatency() {
+	return mWritelatency;
+}
+
+Memory::RuwFlag Memory::getRuwflag() {
+	return mRuwflag;
+}
+
 bool Memory::checkAndUpdateDeferedType() {
 	// TODO: Add further defer reasons
 	if (mDType == nullptr)

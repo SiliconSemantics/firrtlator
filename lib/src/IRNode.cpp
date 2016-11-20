@@ -44,11 +44,6 @@ void IRNode::setInfo(std::shared_ptr<Info> info) {
 
 bool IRNode::isDeclaration() { return (mId.length() != 0); }
 
-std::ostream& operator<< (std::ostream& os, const Firrtlator::IRNode& n) {
-	n.emit(os);
-	return os;
-}
-
 Info::Info(std::string value) : mValue(value) {}
 
 void Info::setValue(std::string value) { mValue = value; }

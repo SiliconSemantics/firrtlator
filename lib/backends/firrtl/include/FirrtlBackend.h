@@ -25,46 +25,92 @@
 #include "FirrtlatorBackend.h"
 #include "Visitor.h"
 
+#include <iostream>
+
 namespace Firrtlator {
 namespace Backend {
 namespace Firrtl {
 
 class Backend : public ::Firrtlator::Backend::BackendBase {
 public:
+	Backend(std::ostream &os);
 	virtual void generate(std::shared_ptr<Circuit> ir);
+private:
+	std::ostream *mStream;
 };
 
 class Visitor : public ::Firrtlator::Visitor {
 public:
+	Visitor(std::ostream *os);
+
 	virtual ~Visitor();
-	virtual void visit(Circuit &);
-	virtual void visit(Module &);
-	virtual void visit(Port &);
-	virtual void visit(Parameter &);
+	virtual bool visit(Circuit &);
+	virtual void leave(Circuit &);
+
+	virtual bool visit(Module &);
+	virtual void leave(Module &);
+
+	virtual bool visit(Port &);
+	virtual void leave(Port &);
+
+	virtual bool visit(Parameter &);
+
 	virtual void visit(TypeInt &);
+
 	virtual void visit(TypeClock &);
-	virtual void visit(Field &);
-	virtual void visit(TypeBundle &);
-	virtual void visit(TypeVector &);
-	virtual void visit(Wire &);
-	virtual void visit(Reg &);
-	virtual void visit(Instance &);
-	virtual void visit(Memory &);
-	virtual void visit(Node &);
-	virtual void visit(Connect &);
-	virtual void visit(Invalid &);
-	virtual void visit(Conditional &);
-	virtual void visit(Stop &);
-	virtual void visit(Printf &);
+
+	virtual bool visit(Field &);
+
+	virtual bool visit(TypeBundle &);
+
+	virtual bool visit(TypeVector &);
+	virtual void leave(TypeVector &);
+
+	virtual bool visit(Wire &);
+	virtual void leave(Wire &);
+
+	virtual bool visit(Reg &);
+
+	virtual bool visit(Instance &);
+	virtual void leave(Instance &);
+
+	virtual bool visit(Memory &);
+
+	virtual bool visit(Node &);
+	virtual void leave(Node &);
+
+	virtual bool visit(Connect &);
+
+	virtual bool visit(Invalid &);
+	virtual void leave(Invalid &);
+
+	virtual bool visit(Conditional &);
+
+	virtual bool visit(Stop &);
+
+	virtual bool visit(Printf &);
+
 	virtual void visit(Empty &);
+
 	virtual void visit(Reference &);
+
 	virtual void visit(Constant &);
-	virtual void visit(SubField &);
-	virtual void visit(SubIndex &);
-	virtual void visit(SubAccess &);
-	virtual void visit(Mux &);
-	virtual void visit(CondValid &);
-	virtual void visit(PrimOp &);
+
+	virtual bool visit(SubField &);
+
+	virtual bool visit(SubIndex &);
+
+	virtual bool visit(SubAccess &);
+
+	virtual bool visit(Mux &);
+
+	virtual bool visit(CondValid &);
+
+	virtual bool visit(PrimOp &);
+private:
+	std::ostream *mStream;
+
+	void outputInfo(IRNode &);
 };
 
 }

@@ -23,6 +23,7 @@
 #include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
 #include "Util.h"
+#include "Visitor.h"
 
 namespace Firrtlator {
 
@@ -35,6 +36,10 @@ Wire::Wire() : Wire("", nullptr) {}
 Wire::Wire(std::string id, std::shared_ptr<Type> type)
 : mType(type), Stmt(id) {}
 
+std::shared_ptr<Type> Wire::getType() {
+	return mType;
+}
+
 void Wire::accept(Visitor& v) {
 
 }
@@ -42,23 +47,63 @@ void Wire::accept(Visitor& v) {
 Reg::Reg() : Reg("", nullptr, nullptr) {}
 
 Reg::Reg(std::string id, std::shared_ptr<Type> type,
-		std::shared_ptr<Expression> exp)
-: mType(type), mExp(exp), Stmt(id) {}
+		std::shared_ptr<Expression> clock)
+: mType(type), mClock(clock), Stmt(id) {}
 
-void Reg::accept(Visitor& v) {
-
+std::shared_ptr<Type> Reg::getType() {
+	return mType;
 }
 
-Instance::Instance() : Instance("", "") {}
+std::shared_ptr<Expression> Reg::getClock() {
+	return mClock;
+}
 
-Instance::Instance(std::string id, std::string of)
-: mOfIdentifier(of), Stmt(id) {}
+void Reg::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mType->accept(v);
+	mClock->accept(v);
+
+	if (mResetTrigger && mResetValue) {
+		mResetTrigger->accept(v);
+		mResetValue->accept(v);
+	}
+}
+
+void Reg::setResetTrigger(std::shared_ptr<Expression> trigger) {
+	mResetTrigger = trigger;
+}
+
+void Reg::setResetValue(std::shared_ptr<Expression> value) {
+	mResetValue = value;
+}
+
+std::shared_ptr<Expression> Reg::getResetTrigger() {
+	return mResetTrigger;
+}
+
+std::shared_ptr<Expression> Reg::getResetValue() {
+	return mResetValue;
+}
+
+
+Instance::Instance() : Instance("", nullptr) {}
 
 Instance::Instance(std::string id, std::shared_ptr<Reference> of)
 : mOf(of), Stmt(id) {}
 
-void Instance::accept(Visitor& v) {
+std::shared_ptr<Reference> Instance::getOf() {
+	return mOf;
+}
 
+void Instance::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mOf->accept(v);
+
+	v.leave(*this);
 }
 
 Node::Node() : Node("", nullptr) {}
@@ -66,8 +111,17 @@ Node::Node() : Node("", nullptr) {}
 Node::Node(std::string id, std::shared_ptr<Expression> expr)
 : mExpr(expr), Stmt(id) {}
 
-void Node::accept(Visitor& v) {
+std::shared_ptr<Expression> Node::getExpression() {
+	return mExpr;
+}
 
+void Node::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mExpr->accept(v);
+
+	v.leave(*this);
 }
 
 Connect::Connect() : Connect(nullptr, nullptr) {}
@@ -77,8 +131,26 @@ Connect::Connect(std::shared_ptr<Expression> to,
 		bool partial)
 : mTo(to), mFrom(from), mPartial(partial) {}
 
-void Connect::accept(Visitor& v) {
+bool Connect::getPartial() {
+	return mPartial;
+}
 
+std::shared_ptr<Expression> Connect::getTo() {
+	return mTo;
+}
+
+std::shared_ptr<Expression> Connect::getFrom() {
+	return mFrom;
+}
+
+void Connect::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mTo->accept(v);
+	mFrom->accept(v);
+
+	v.leave(*this);
 }
 
 Invalid::Invalid() : Invalid(nullptr) {}
@@ -86,8 +158,17 @@ Invalid::Invalid() : Invalid(nullptr) {}
 Invalid::Invalid(std::shared_ptr<Expression> exp)
 : mExp(exp) {}
 
-void Invalid::accept(Visitor& v) {
+std::shared_ptr<Expression> Invalid::getExpr() {
+	return mExp;
+}
 
+void Invalid::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mExp->accept(v);
+
+	v.leave(*this);
 }
 
 Conditional::Conditional() : Conditional(nullptr) {}
@@ -114,8 +195,36 @@ void Conditional::setElseInfo(std::shared_ptr<Info> info) {
 	mElseInfo = info;
 }
 
-void Conditional::accept(Visitor& v) {
+std::shared_ptr<Expression> Conditional::getCondition() {
+	return mCond;
+}
 
+std::vector<std::shared_ptr<Stmt> > Conditional::getIfStmts() {
+	return mIf;
+}
+
+std::vector<std::shared_ptr<Stmt> > Conditional::getElseStmts() {
+	return mElse;
+}
+
+std::shared_ptr<Info> Conditional::getElseInfo() {
+	return mElseInfo;
+}
+
+
+void Conditional::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mCond->accept(v);
+
+	for (auto s : mIf)
+		s->accept(v);
+
+	for (auto s : mElse)
+		s->accept(v);
+
+	v.leave(*this);
 }
 
 Stop::Stop() : Stop(nullptr, nullptr, -1) {}
@@ -125,8 +234,26 @@ Stop::Stop(std::shared_ptr<Expression> clock,
 		int code)
 : mClock(clock), mCond(cond), mCode(code) {}
 
-void Stop::accept(Visitor& v) {
+std::shared_ptr<Expression> Stop::getClock() {
+	return mClock;
+}
 
+std::shared_ptr<Expression> Stop::getCondition() {
+	return mCond;
+}
+
+int Stop::getCode() {
+	return mCode;
+}
+
+void Stop::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mClock->accept(v);
+	mCond->accept(v);
+
+	v.leave(*this);
 }
 
 Printf::Printf() : Printf(nullptr, nullptr, "") {}
@@ -138,12 +265,37 @@ void Printf::addArgument(std::shared_ptr<Expression> arg) {
 	mArguments.push_back(arg);
 }
 
-void Printf::accept(Visitor& v) {
+std::shared_ptr<Expression> Printf::getClock() {
+	return mClock;
+}
 
+std::shared_ptr<Expression> Printf::getCondition() {
+	return mCond;
+}
+
+std::string Printf::getFormat() {
+	return mFormat;
+}
+
+std::vector<std::shared_ptr<Expression> > Printf::getArguments() {
+	return mArguments;
+}
+
+void Printf::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mClock->accept(v);
+	mCond->accept(v);
+
+	for (auto a : mArguments)
+		a->accept(v);
+
+	v.leave(*this);
 }
 
 void Empty::accept(Visitor& v) {
-
+	v.visit(*this);
 }
 
 

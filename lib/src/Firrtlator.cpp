@@ -21,19 +21,67 @@
  */
 
 #include <Firrtlator.h>
+#include <IR.h>
+#include "FirrtlFrontend.h"
+#include "FirrtlBackend.h"
 
 namespace Firrtlator {
 
 class Firrtlator::impl {
-	
+public:
+	std::shared_ptr<Circuit> mIR;
 };
 
-Firrtlator::Firrtlator() : pimpl(new impl()) {
-	
+Firrtlator::Firrtlator() : pimpl(new impl()) {}
+
+Firrtlator::~Firrtlator() {}
+
+bool Firrtlator::parse(std::string::const_iterator begin,
+		std::string::const_iterator end, std::string type) {
+	if (type == "fir") {
+		FirrtlFrontend frontend;
+		if (!frontend.parseString(begin, end))
+			return false;
+		pimpl->mIR = frontend.getIR();
+		return true;
+	}
+
+	return false;
 }
 
-Firrtlator::~Firrtlator() {
+bool Firrtlator::parseFile(std::string filename, std::string type) {
+    std::ifstream in(filename, std::ios_base::in);
+    if (!in) {
+        // TODO: log
+        return false;
+    }
+    std::string str((std::istreambuf_iterator<char>(in)),
+                     std::istreambuf_iterator<char>());
+
+    return parse(str.begin(), str.end(), type);
+}
+
+bool Firrtlator::parseString(std::string content, std::string type) {
+	return parse(content.begin(), content.end(), type);
 
 }
+
+void Firrtlator::elaborate() {
+	// Nothing for now
+}
+
+void pass(std::string id) {
+	// None so far
+}
+
+void Firrtlator::generate(std::string filename, std::string type) {
+	if (type == "fir") {
+		Backend::Firrtl::Backend backend(std::cout);
+		backend.generate(pimpl->mIR);
+	} else {
+		throw std::runtime_error("Unknown backend");
+	}
+}
+
 
 }

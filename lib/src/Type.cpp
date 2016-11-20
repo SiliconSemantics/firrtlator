@@ -22,6 +22,7 @@
 
 #include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
+#include "Visitor.h"
 
 namespace Firrtlator {
 
@@ -51,13 +52,13 @@ void TypeInt::setSigned(bool sign) {
 }
 
 void TypeInt::accept(Visitor& v) {
-
+	v.visit(*this);
 }
 
 TypeClock::TypeClock() : Type(CLOCK) { }
 
 void TypeClock::accept(Visitor& v) {
-
+	v.visit(*this);
 }
 
 Field::Field() : Field("", nullptr) {}
@@ -72,6 +73,14 @@ void Field::setFlip(bool flip) {
 	mFlip = flip;
 }
 
+std::shared_ptr<Type> Field::getType() {
+	return mType;
+}
+
+bool Field::getFlip() {
+	return mFlip;
+}
+
 void Field::accept(Visitor& v) {
 
 }
@@ -79,6 +88,10 @@ void Field::accept(Visitor& v) {
 TypeBundle::TypeBundle() : Type(BUNDLE) {}
 void TypeBundle::addField(std::shared_ptr<Field> field) {
 	mFields.push_back(field);
+}
+
+std::vector<std::shared_ptr<Field> > TypeBundle::getFields() {
+	return mFields;
 }
 
 void TypeBundle::accept(Visitor& v) {
@@ -89,6 +102,10 @@ TypeVector::TypeVector() : mSize(0), Type(VECTOR) { }
 
 void TypeVector::setSize(int size) {
 	mSize = size;
+}
+
+int TypeVector::getSize() {
+	return mSize;
 }
 
 void TypeVector::accept(Visitor& v) {

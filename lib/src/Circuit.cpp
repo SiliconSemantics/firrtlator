@@ -23,6 +23,7 @@
 #include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
 
+#include "Visitor.h"
 
 namespace Firrtlator {
 
@@ -32,25 +33,29 @@ Circuit::Circuit(std::string id) : IRNode(id) {}
 
 void Circuit::addModule(std::shared_ptr<Module> mod) {
 	mModules.push_back(mod);
+	if (mod->isExternal()) {
+		mExternalModules.push_back(mod);
+	} else {
+		mInternalModules.push_back(mod);
+	}
 }
 
-void Circuit::emit(std::ostream& os) const {
-	os << "circuit " << mId << " :";
-
-	if (mInfo) {
-		os << *mInfo;
-	}
-
-	os << indent << endl;
-
-	for (auto m : mModules)
-		os << *m << endl;
-
-	os << dedent << endl;
+std::vector<std::shared_ptr<Module> > Circuit::getModules() {
+	return mModules;
 }
 
 void Circuit::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
 
+	for (auto m : mExternalModules)
+		m->accept(v);
+
+	for (auto m : mInternalModules)
+		m->accept(v);
+
+
+	v.leave(*this);
 }
 
 }

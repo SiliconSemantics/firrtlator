@@ -137,10 +137,10 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				(tok.int_ | tok.double_ | tok.string_double | tok.string_single)
 				;
 
-		type = type_int
+		type = type_int [_val = _1]
 				| tok.Clock [_val = make_shared<TypeClock>()()]
-				| type_bundle
-				| type_vector;
+				| type_bundle [_val = _1]
+				| type_vector [_val = _1];
 
 		type_int = (tok.UInt [_val = make_shared<TypeInt>()(false)]
 			        | tok.SInt [_val = make_shared<TypeInt>()(true)])
@@ -190,7 +190,10 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> exp_) [_val = make_shared<Reg>()(_1, _2, _3)]
 				>> -(tok.with >> ":" >> '('
 				>> tok.identifier [ qi::_pass = (_1 == "reset") ]
-				>> tok.assign >> '(' >> exp_ >> exp_ >> ')' >> ')' )
+				>> tok.assign >> '('
+				>> exp_ [bind(&Reg::setResetTrigger, _val, _1)]
+				>> exp_ [bind(&Reg::setResetValue, _val, _1)]
+				>> ')' >> ')' )
 				>> -info
 				;
 
@@ -227,21 +230,21 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				;
 
 		mem_reader = tok.reader >> tok.assign
-				>> tok.identifier
+				>> tok.identifier [bind(&Memory::addReader, _r1, _1)]
 				;
 
 		mem_writer = tok.writer >> tok.assign
-				>> tok.identifier
+				>> tok.identifier [bind(&Memory::addWriter, _r1, _1)]
 				;
 
 		mem_readwriter = tok.readwriter >> tok.assign
-				>> tok.identifier
+				>> tok.identifier [bind(&Memory::addReadWriter, _r1, _1)]
 				;
 
 		inst = tok.inst
 				>> (tok.identifier
 				>> tok.of
-				>> tok.identifier) [_val = make_shared<Instance>()(_3, _1)]
+				>> reference) [_val = make_shared<Instance>()(_1, _3)]
 				>> -info [bind(&Stmt::setInfo, _val, _1)]
 				;
 
@@ -339,7 +342,7 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				;
 
 		exp_subaccess = "["
-				>> reference [_a = make_shared<SubAccess>()(_1, _r1)]
+				>> exp_ [_a = make_shared<SubAccess>()(_1, _r1)]
 				>> "]" >> exp_helper(_a) [_val = _1]
 				;
 

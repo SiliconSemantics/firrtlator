@@ -22,6 +22,7 @@
 
 #include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
+#include "Visitor.h"
 
 namespace Firrtlator {
 
@@ -38,14 +39,13 @@ Port::Direction Port::getDirection() {
 	return mDirection;
 }
 
-void Port::emit(std::ostream& os) const {
-	os << (mDirection == INPUT ? "input" : "output");
-	os << " " << mId << " :";
-	os << endl;
-}
-
 void Port::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
 
+	mType->accept(v);
+
+	v.leave(*this);
 }
 
 }
