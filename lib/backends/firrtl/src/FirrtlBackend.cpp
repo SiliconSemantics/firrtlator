@@ -29,7 +29,13 @@ namespace Firrtlator {
 namespace Backend {
 namespace Firrtl {
 
-Backend::Backend(std::ostream &os) : mStream(&os) {
+std::string Backend::name = "FIRRTL";
+std::string Backend::description = "Generates FIRRTL files";
+std::vector<std::string> Backend::filetypes = { "fir" };
+
+REGISTER_BACKEND(Backend);
+
+Backend::Backend(std::ostream &os) : ::Firrtlator::Backend::BackendBase(os) {
 
 }
 

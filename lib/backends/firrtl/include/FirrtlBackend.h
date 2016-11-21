@@ -35,8 +35,9 @@ class Backend : public ::Firrtlator::Backend::BackendBase {
 public:
 	Backend(std::ostream &os);
 	virtual void generate(std::shared_ptr<Circuit> ir);
-private:
-	std::ostream *mStream;
+	static std::string name;
+	static std::string description;
+	static std::vector<std::string> filetypes;
 };
 
 class Visitor : public ::Firrtlator::Visitor {

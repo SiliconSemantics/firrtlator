@@ -24,6 +24,14 @@
 #include "FirrtlBackend.h"
 
 namespace Firrtlator {
+namespace Backend {
 
 
+void Registry::registerBackend(const std::string &name,
+	BackendFactory* factory) {
+	getBackendMap()[name] = factory;
+}
+
+
+}
 }

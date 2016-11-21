@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <vector>
 #include <memory>
 
 namespace Firrtlator {
@@ -38,6 +39,13 @@ public:
 	void elaborate();
 	void pass(std::string id);
 
+	typedef struct {
+		std::string name;
+		std::string description;
+		std::vector<std::string> filetypes;
+	} BackendDescriptor;
+
+	static std::vector<BackendDescriptor> getBackends();
 	void generate(std::string filename, std::string type = "fir");
 private:
 	class impl;
@@ -45,3 +53,4 @@ private:
 };
 
 }
+

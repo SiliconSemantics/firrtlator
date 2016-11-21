@@ -83,5 +83,9 @@ void Firrtlator::generate(std::string filename, std::string type) {
 	}
 }
 
+std::vector<Firrtlator::BackendDescriptor> Firrtlator::getBackends() {
+	return Backend::Registry::getDescriptors();
+}
+
 
 }

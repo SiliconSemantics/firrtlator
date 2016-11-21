@@ -23,6 +23,7 @@
 #pragma once
 
 #include "IR.h"
+#include "Firrtlator.h"
 
 namespace Firrtlator {
 namespace Backend {
@@ -30,8 +31,72 @@ namespace Backend {
 class BackendBase {
 public:
     virtual ~BackendBase() {};
+    BackendBase(std::ostream &os) : mStream(&os) {}
     virtual void generate(std::shared_ptr<Circuit> ir) = 0;
+protected:
+	std::ostream *mStream;
+};
+
+class BackendFactory
+{
+public:
+	virtual ~BackendFactory() {}
+    virtual std::shared_ptr<BackendBase> create(std::ostream &os) = 0;
+
+    virtual std::string getName() = 0;
+    virtual std::string getDescription() = 0;
+    virtual std::vector<std::string> getFiletypes() = 0;
+};
+
+class Registry {
+public:
+	static void registerBackend(const std::string &name,
+		BackendFactory * factory);
+	static std::shared_ptr<BackendBase> create(const std::string &name, std::ostream &os) {
+		return getBackendMap()[name]->create(os);
+	}
+
+	static std::vector<Firrtlator::BackendDescriptor> getDescriptors() {
+		std::vector<Firrtlator::BackendDescriptor> list;
+		for (auto b : getBackendMap()) {
+			Firrtlator::BackendDescriptor desc;
+			desc.name = b.second->getName();
+			desc.description = b.second->getDescription();
+			desc.filetypes = b.second->getFiletypes();
+			list.push_back(desc);
+		}
+		return list;
+	}
+private:
+	typedef std::map<std::string, BackendFactory* > BackendMap;
+    static BackendMap &getBackendMap() {
+    	static BackendMap map;
+    	return map;
+    }
 };
 
 }
 }
+
+#define REGISTER_BACKEND(backend) \
+    class backend##Factory : public ::Firrtlator::Backend::BackendFactory { \
+    public: \
+        backend##Factory() \
+        { \
+            ::Firrtlator::Backend::Registry::registerBackend(backend::name, \
+				this); \
+        } \
+        virtual std::shared_ptr<::Firrtlator::Backend::BackendBase> create(std::ostream &os) { \
+            return std::make_shared<backend>(os); \
+        } \
+        virtual std::string getName() { \
+        	return backend::name; \
+        } \
+        virtual std::string getDescription() { \
+        	return backend::description; \
+        } \
+        virtual std::vector<std::string> getFiletypes() { \
+            return backend::filetypes; \
+        } \
+    }; \
+    static backend##Factory global_##backend##Factory;
