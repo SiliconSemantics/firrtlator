@@ -26,9 +26,9 @@
 
 namespace Firrtlator {
 
-std::ios_base& indent(std::ios_base& stream);
+std::basic_ostream<char, std::char_traits<char>>& indent(std::basic_ostream<char, std::char_traits<char>>& stream);
 
-std::ios_base& dedent(std::ios_base& stream);
+std::basic_ostream<char, std::char_traits<char>>& dedent(std::basic_ostream<char, std::char_traits<char>>& stream);
 
 std::basic_ostream<char, std::char_traits<char>>& endl(std::basic_ostream<char, std::char_traits<char>>& stream);
 

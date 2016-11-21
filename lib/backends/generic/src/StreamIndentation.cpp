@@ -20,34 +20,76 @@
  * SOFTWARE.
  */
 
-#include "../include/StreamIndentation.h"
+#include "StreamIndentation.h"
+#include "Util.h"
+
+#include <iostream>
+#include <sstream>
 
 namespace Firrtlator {
 
 /* Helper function to get a storage index in a stream */
 static int get_indent_index() {
-    /* ios_base::xalloc allocates indices for custom-storage locations. These indices are valid for all streams */
     static int index = std::ios_base::xalloc();
     return index;
 }
 
-std::ios_base& indent(std::ios_base& stream) {
-    /* The iword(index) function gives a reference to the index-th custom storage location as a integer */
-    stream.iword(get_indent_index())++;
+inline void beginOfLine(std::basic_stringstream<char>* stream) {
+	std::stringbuf *pbuf = stream->rdbuf();
+	int p, origin = stream->tellp();
+
+
+	for (p = origin-1; p > 0; p--) {
+		pbuf->pubseekpos(p-1);
+		char c = pbuf->sgetc();
+		if (c == '\n') {
+			pbuf->pubseekpos(p);
+		    int indent = stream->iword(get_indent_index());
+		    while (indent) {
+		        *stream << "  ";
+		        indent--;
+		    }
+			break;
+		} else if ((c == ' ') || (c == '\n')) {
+			/* continue skipping */
+		} else {
+			pbuf->pubseekpos(origin);
+			break;
+		}
+	}
+}
+
+std::basic_ostream<char, std::char_traits<char>>& indent(std::basic_ostream<char, std::char_traits<char>>& stream) {
+	std::basic_stringstream<char> *sstream;
+
+	stream.iword(get_indent_index())++;
+	sstream = dynamic_cast<std::basic_stringstream<char>* >(&stream);
+	if (sstream) {
+		beginOfLine(sstream);
+	}
+
     return stream;
 }
 
-std::ios_base& dedent(std::ios_base& stream) {
-    /* The iword(index) function gives a reference to the index-th custom storage location as a integer */
-    stream.iword(get_indent_index())--;
+std::basic_ostream<char, std::char_traits<char>>& dedent(std::basic_ostream<char, std::char_traits<char>>& stream) {
+	std::basic_stringstream<char> *sstream;
+	throwAssert((stream.iword(get_indent_index()) > 0), "Cannot dedent at level 0");
+
+	stream.iword(get_indent_index())--;
+
+	sstream = dynamic_cast<std::basic_stringstream<char>* >(&stream);
+	if (sstream) {
+		beginOfLine(sstream);
+	}
     return stream;
 }
 
 std::basic_ostream<char, std::char_traits<char>>& endl(std::basic_ostream<char, std::char_traits<char>>& stream) {
     int indent = stream.iword(get_indent_index());
     stream.put(stream.widen('\n'));
+
     while (indent) {
-        stream.put(stream.widen('\t'));
+        stream << "  ";
         indent--;
     }
     stream.flush();
