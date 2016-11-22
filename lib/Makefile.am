@@ -16,8 +16,10 @@ libfirrtlator_la_SOURCES = \
     src/Visitor.cpp \
 	frontends/generic/src/Frontends.cpp \
 	frontends/firrtl/src/FirrtlFrontend.cpp \
-	backends/firrtl/src/FirrtlBackend.cpp \
 	backends/generic/src/Backends.cpp \
+	backends/firrtl/src/FirrtlBackend.cpp \
+	backends/dot/src/DotBackend.cpp \
+	backends/tree/src/TreeBackend.cpp \
 	backends/generic/src/StreamIndentation.cpp
 
 libfirrtlator_la_LDFLAGS = $(AM_LDFLAGS) $(LTLDFLAGS)
@@ -27,5 +29,7 @@ libfirrtlator_la_CXXFLAGS = $(AM_CXXFLAGS) -include $(top_builddir)/config.h \
 	-I $(srcdir)/frontends \
 	-I $(srcdir)/frontends/firrtl/include \
 	-I $(srcdir)/backends \
+	-I $(srcdir)/backends/generic/include \
 	-I $(srcdir)/backends/firrtl/include \
-	-I $(srcdir)/backends/generic/include 
+	-I $(srcdir)/backends/tree/include 
+	
