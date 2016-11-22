@@ -26,18 +26,12 @@ AC_PREFIX_DEFAULT([/usr])
 
 BOOST_REQUIRE([1.41])
 
-AM_CFLAGS="-Wall \
-    -Wmissing-declarations -Wmissing-prototypes \
-    -Wnested-externs -Wpointer-arith \
-    -Wsign-compare -Wchar-subscripts \
-    -Wstrict-prototypes -Wshadow \
+AM_CXXFLAGS="-Wall \
+    -Wmissing-declarations -Wpointer-arith \
+    -Wsign-compare -Wchar-subscripts -Wshadow \
     -Wformat-security -Wtype-limits \
-    -fvisibility=hidden \
-    -ffunction-sections \
-    -fdata-sections \
-    -pthread \
-    ${libglip_CFLAGS}"
-AC_SUBST([AM_CFLAGS])
+    -fvisibility=hidden"
+AC_SUBST([AM_CXXFLAGS])
 
 AM_LDFLAGS="-Wl,--gc-sections \
     -Wl,--as-needed \

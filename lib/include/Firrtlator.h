@@ -27,7 +27,9 @@
 
 namespace Firrtlator {
 
-class Firrtlator {
+class
+__attribute__ ((visibility ("default")))
+Firrtlator {
 public:
 	Firrtlator();
 	~Firrtlator();
