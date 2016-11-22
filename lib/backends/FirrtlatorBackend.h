@@ -53,6 +53,8 @@ public:
 	static void registerBackend(const std::string &name,
 		BackendFactory * factory);
 	static std::shared_ptr<BackendBase> create(const std::string &name, std::ostream &os) {
+		throwAssert(getBackendMap().find(name) != getBackendMap().end(),
+				"Cannot find backend: " + name);
 		return getBackendMap()[name]->create(os);
 	}
 

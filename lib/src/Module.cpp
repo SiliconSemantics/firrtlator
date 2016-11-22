@@ -35,11 +35,11 @@ Module::Module(std::string id, bool external)
 void Module::addPort(std::shared_ptr<Port> port) {
 	mPorts.push_back(port);
 }
-void Module::addStmt(std::shared_ptr<Stmt> stmt) {
-	throwAssert(!mExternal, "Cannot add statements to extmodule");
 
-	mStmts.push_back(stmt);
+void Module::setStatementGroup(std::shared_ptr<StmtGroup> stmts) {
+	mStmts = stmts;
 }
+
 void Module::setDefname(std::string defname) {
 	throwAssert(mExternal, "Cannot assign defname to module");
 
@@ -55,6 +55,22 @@ bool Module::isExternal() {
 	return mExternal;
 }
 
+std::string Module::getDefname() {
+	return mDefname;
+}
+
+std::vector<std::shared_ptr<Port> > Module::getPorts() {
+	return mPorts;
+}
+
+std::shared_ptr<StmtGroup> Module::getStmts() {
+	return mStmts;
+}
+
+std::vector<std::shared_ptr<Parameter> > Module::getParameters() {
+	return mParameters;
+}
+
 void Module::accept(Visitor& v) {
 	if (!v.visit(*this))
 		return;
@@ -62,8 +78,8 @@ void Module::accept(Visitor& v) {
 	for (auto p : mPorts)
 		p->accept(v);
 
-	for (auto s : mStmts)
-		s->accept(v);
+	if (mStmts)
+		mStmts->accept(v);
 
 	v.leave(*this);
 }

@@ -55,6 +55,9 @@ public:
 	virtual bool visit(TypeVector &) = 0;
 	virtual void leave(TypeVector &){};
 
+	virtual bool visit(StmtGroup &) = 0;
+	virtual void leave(StmtGroup &){};
+
 	virtual bool visit(Wire &) = 0;
 	virtual void leave(Wire &){};
 
@@ -78,6 +81,9 @@ public:
 
 	virtual bool visit(Conditional &) = 0;
 	virtual void leave(Conditional &){};
+
+	virtual bool visit(ConditionalElse &) = 0;
+	virtual void leave(ConditionalElse &){};
 
 	virtual bool visit(Stop &) = 0;
 	virtual void leave(Stop &){};

@@ -37,6 +37,7 @@ class IRNode;
 class Reference;
 class Module;
 class Stmt;
+class StmtGroup;
 class Expression;
 class Type;
 class Visitor;
@@ -182,17 +183,24 @@ class Module : public IRNode {
 public:
 	Module();
 	Module(std::string id, bool external = false);
+
 	void addPort(std::shared_ptr<Port> port);
-	void addStmt(std::shared_ptr<Stmt> stmt);
+	void setStatementGroup(std::shared_ptr<StmtGroup> stmt);
 	void setDefname(std::string defname);
 	void addParameter(std::shared_ptr<Parameter> param);
+
 	bool isExternal();
+	std::string getDefname();
+	std::vector<std::shared_ptr<Port> > getPorts();
+	std::shared_ptr<StmtGroup> getStmts();
+	std::vector<std::shared_ptr<Parameter> > getParameters();
+
 	virtual void accept(Visitor& v);
 private:
 	bool mExternal;
 	std::string mDefname;
 	std::vector<std::shared_ptr<Port> > mPorts;
-	std::vector<std::shared_ptr<Stmt> > mStmts;
+	std::shared_ptr<StmtGroup> mStmts;
 	std::vector<std::shared_ptr<Parameter> > mParameters;
 };
 
@@ -201,6 +209,24 @@ public:
 	Stmt();
 	Stmt(std::string id);
 	virtual void accept(Visitor& v) = 0;
+};
+
+class StmtGroup : public Stmt {
+public:
+	StmtGroup();
+	StmtGroup(std::shared_ptr<Stmt> stmt);
+	StmtGroup(std::vector<std::shared_ptr<Stmt> > group);
+
+	void addStatement(std::shared_ptr<Stmt> stmt);
+
+	typedef std::vector<std::shared_ptr<Stmt> >::iterator iterator;
+	typedef std::vector<std::shared_ptr<Stmt> >::const_iterator const_iterator;
+	iterator begin();
+	iterator end();
+
+	virtual void accept(Visitor& v);
+private:
+	std::vector<std::shared_ptr<Stmt> > mGroup;
 };
 
 class Wire : public Stmt {
@@ -330,28 +356,40 @@ private:
 	std::shared_ptr<Expression> mExp;
 };
 
+class ConditionalElse;
+
 class Conditional : public Stmt {
 public:
 	Conditional();
 	Conditional(std::shared_ptr<Expression> cond);
-	void addIfStmt(std::shared_ptr<Stmt> stmt);
-	void addIfStmtList(std::vector<std::shared_ptr<Stmt> > &stmts);
-	void addElseStmt(std::shared_ptr<Stmt> stmt);
-	void addElseStmtList(std::vector<std::shared_ptr<Stmt> > &stmts);
-	void setElseInfo(std::shared_ptr<Info> info);
+	void setThen(std::shared_ptr<StmtGroup> stmts);
+	void setElse(std::shared_ptr<ConditionalElse> stmt);
 
 	std::shared_ptr<Expression> getCondition();
-	std::vector<std::shared_ptr<Stmt> > getIfStmts();
-	std::vector<std::shared_ptr<Stmt> > getElseStmts();
-	std::shared_ptr<Info> getElseInfo();
+	std::shared_ptr<StmtGroup> getThen();
+	std::shared_ptr<ConditionalElse> getElse();
 
 	virtual void accept(Visitor& v);
 private:
 	std::shared_ptr<Expression> mCond;
-	std::vector<std::shared_ptr<Stmt> > mIf; // TODO: mThen is better name
-	std::vector<std::shared_ptr<Stmt> > mElse;
-	std::shared_ptr<Info> mElseInfo;
+	std::shared_ptr<StmtGroup> mThen;
+	std::shared_ptr<ConditionalElse> mElse;
 };
+
+class ConditionalElse : public IRNode {
+public:
+	ConditionalElse();
+	ConditionalElse(std::shared_ptr<StmtGroup> stmts);
+
+	void setStmts(std::shared_ptr<StmtGroup> stmts);
+
+	std::shared_ptr<StmtGroup> getStmts();
+
+	virtual void accept(Visitor& v);
+private:
+	std::shared_ptr<StmtGroup> mStmts;
+};
+
 
 class Stop : public Stmt {
 public:

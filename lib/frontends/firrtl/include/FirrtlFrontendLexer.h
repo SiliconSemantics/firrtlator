@@ -45,9 +45,9 @@ class Tokens : public lex::lexer<Lexer> {
 public:
 	Tokens()
 : indent_("[ \\t]*")
-, emptyline("[ \\t]*$")
 , newline_("[\\n\\r\\f]+")
 , whitespace_("[ \\t,]+")
+, emptyline("[ \\t]*$")
 , comment_ (";.*$")
 , identifier("[A-Za-z_][A-Za-z0-9_]*")
 , info ("@\\[[^\\]]*\\]")
@@ -155,6 +155,10 @@ public:
 #undef EMIT
 
 	lex::token_def<> indent_;
+	lex::token_def<lex::omit> newline_, whitespace_, emptyline;
+	lex::token_def<> comment_;
+	lex::token_def<std::string> identifier;
+	lex::token_def<std::string> info;
 
 	lex::token_def<> circuit, module, extmodule, defname, parameter;
 	lex::token_def<> input, output;
@@ -169,14 +173,9 @@ public:
 
 	lex::token_def<std::string> primop;
 
-	lex::token_def<std::string> info;
-	lex::token_def<std::string> identifier;
 	lex::token_def<int> int_;
 	lex::token_def<> double_;
 	lex::token_def<std::string> string_double, string_single;
-
-	lex::token_def<> comment_;
-	lex::token_def<lex::omit> newline_, whitespace_, emptyline;
 
 	std::stack<int> scopeLevels_;
 };

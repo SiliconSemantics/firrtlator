@@ -26,6 +26,7 @@
 #include "Visitor.h"
 
 #include <iostream>
+#include <sstream>
 
 namespace Firrtlator {
 namespace Backend {
@@ -42,7 +43,7 @@ public:
 
 class Visitor : public ::Firrtlator::Visitor {
 public:
-	Visitor(std::ostream *os);
+	Visitor(std::basic_stringstream<char, std::char_traits<char> > *os);
 
 	virtual ~Visitor();
 	virtual bool visit(Circuit &);
@@ -67,6 +68,9 @@ public:
 	virtual bool visit(TypeVector &);
 	virtual void leave(TypeVector &);
 
+	virtual bool visit(StmtGroup &);
+	virtual void leave(StmtGroup &);
+
 	virtual bool visit(Wire &);
 	virtual void leave(Wire &);
 
@@ -86,6 +90,8 @@ public:
 	virtual void leave(Invalid &);
 
 	virtual bool visit(Conditional &);
+
+	virtual bool visit(ConditionalElse &);
 
 	virtual bool visit(Stop &);
 
@@ -109,8 +115,7 @@ public:
 
 	virtual bool visit(PrimOp &);
 private:
-	std::ostream *mStream;
-
+	std::basic_stringstream<char> *mStream;
 	void outputInfo(IRNode &);
 };
 

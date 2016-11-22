@@ -104,7 +104,7 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> -(
 					 qi::token(INDENT)
 					>> *port [bind(&Module::addPort, _val, _1)]
-					>> +stmt [bind(&Module::addStmt, _val, _1)]
+					>> stmt_group [bind(&Module::setStatementGroup, _val, _1)]
 					>> qi::token(DEDENT)
 		            )
 				;
@@ -168,11 +168,12 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				| invalidate | conditional | stop | printf_ | empty
 				;
 
-		stmt_list = +stmt;
+		stmt_group = eps [_val = make_shared<StmtGroup>()()]
+				>> +stmt [bind(&StmtGroup::addStatement,_val,_1)];
 
 
 		stmt_suite = (qi::tokenid(INDENT)
-			    >> stmt_list [_val = _1]
+			    >> stmt_group [_val = _1]
 				>> qi::tokenid(DEDENT))
 				;
 
@@ -276,19 +277,21 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> exp_ [_val = make_shared<Conditional>()(_1)]
 				>> ":"
 				>> -info  [bind(&Conditional::setInfo, _val, _1)]
-				>> -(stmt [bind(&Conditional::addIfStmt, _val, _1)]
-					| stmt_suite [bind(&Conditional::addIfStmtList, _val, _1)]
+				>> -(stmt_group [bind(&Conditional::setThen, _val, _1)]
+					| stmt_suite [bind(&Conditional::setThen, _val, _1)]
 					)
-				>> -(tok.else_ >>
-					 (conditional [bind(&Conditional::addElseStmt, _val, _1)]
-					 | (':'
-						>> -info [bind(&Conditional::setElseInfo, _val, _1)]
-						>> (stmt  [bind(&Conditional::addElseStmt, _val, _1)]
-						   | stmt_suite [bind(&Conditional::addElseStmtList, _val, _1)]
-						   )
-					   )
-					 )
-					)
+				>> -conditional_else
+				;
+
+		conditional_else = tok.else_ [_val = make_shared<ConditionalElse>()()]
+				>> (conditional [_a = make_shared<StmtGroup>()(_1)]
+				   | (':'
+					 >> -info [bind(&ConditionalElse::setInfo, _val, _1)]
+					 >> (stmt_group [_a = _1]
+					    | stmt_suite [_a = _1]
+					    )
+				      )
+				   ) [bind(&ConditionalElse::setStmts, _val, _a)]
 				;
 
 		stop = tok.stop
@@ -416,7 +419,8 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
     qi::rule<Iterator, std::shared_ptr<Empty>()> empty;
 
     qi::rule<Iterator, std::shared_ptr<Conditional>()> conditional;
-    qi::rule<Iterator, std::vector<std::shared_ptr<Stmt> >()> stmt_list, stmt_suite;
+    qi::rule<Iterator, std::shared_ptr<ConditionalElse>(), qi::locals<std::shared_ptr<StmtGroup> > > conditional_else;
+    qi::rule<Iterator, std::shared_ptr<StmtGroup>()> stmt_group, stmt_suite;
 
     qi::rule<Iterator, void(std::string)> reset_block, simple_reset, simple_reset0;
 

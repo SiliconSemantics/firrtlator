@@ -31,6 +31,40 @@ Stmt::Stmt() : Stmt("") {}
 
 Stmt::Stmt(std::string id) : IRNode(id) {}
 
+StmtGroup::StmtGroup() {}
+
+StmtGroup::StmtGroup(std::shared_ptr<Stmt> stmt) {
+	mGroup.push_back(stmt);
+}
+
+
+StmtGroup::StmtGroup(std::vector<std::shared_ptr<Stmt> > group) {
+	mGroup = group;
+}
+
+void StmtGroup::addStatement(std::shared_ptr<Stmt> stmt) {
+	mGroup.push_back(stmt);
+}
+
+StmtGroup::iterator StmtGroup::begin() {
+	return mGroup.begin();
+}
+
+StmtGroup::iterator StmtGroup::end() {
+	return mGroup.end();
+}
+
+void StmtGroup::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	for (auto s : mGroup)
+		s->accept(v);
+
+	v.leave(*this);
+}
+
+
 Wire::Wire() : Wire("", nullptr) {}
 
 Wire::Wire(std::string id, std::shared_ptr<Type> type)
@@ -41,7 +75,12 @@ std::shared_ptr<Type> Wire::getType() {
 }
 
 void Wire::accept(Visitor& v) {
+	if(!v.visit(*this))
+		return;
 
+	mType->accept(v);
+
+	v.leave(*this);
 }
 
 Reg::Reg() : Reg("", nullptr, nullptr) {}
@@ -176,41 +215,25 @@ Conditional::Conditional() : Conditional(nullptr) {}
 Conditional::Conditional(std::shared_ptr<Expression> cond)
 : mCond(cond) {}
 
-void Conditional::addIfStmt(std::shared_ptr<Stmt> stmt) {
-	mIf.push_back(stmt);
+void Conditional::setThen(std::shared_ptr<StmtGroup> stmt) {
+	mThen = stmt;
 }
 
-void Conditional::addIfStmtList(std::vector<std::shared_ptr<Stmt> > &stmts) {
-	mIf.insert(std::end(mIf), std::begin(stmts), std::end(stmts));
-}
-
-void Conditional::addElseStmt(std::shared_ptr<Stmt> stmt) {
-	mElse.push_back(stmt);
-}
-
-void Conditional::addElseStmtList(std::vector<std::shared_ptr<Stmt> > &stmts) {
-	mElse.insert(std::end(mIf), std::begin(stmts), std::end(stmts));
-}
-void Conditional::setElseInfo(std::shared_ptr<Info> info) {
-	mElseInfo = info;
+void Conditional::setElse(std::shared_ptr<ConditionalElse> e) {
+	mElse = e;
 }
 
 std::shared_ptr<Expression> Conditional::getCondition() {
 	return mCond;
 }
 
-std::vector<std::shared_ptr<Stmt> > Conditional::getIfStmts() {
-	return mIf;
+std::shared_ptr<StmtGroup> Conditional::getThen() {
+	return mThen;
 }
 
-std::vector<std::shared_ptr<Stmt> > Conditional::getElseStmts() {
+std::shared_ptr<ConditionalElse> Conditional::getElse() {
 	return mElse;
 }
-
-std::shared_ptr<Info> Conditional::getElseInfo() {
-	return mElseInfo;
-}
-
 
 void Conditional::accept(Visitor& v) {
 	if (!v.visit(*this))
@@ -218,11 +241,32 @@ void Conditional::accept(Visitor& v) {
 
 	mCond->accept(v);
 
-	for (auto s : mIf)
-		s->accept(v);
+	mThen->accept(v);
 
-	for (auto s : mElse)
-		s->accept(v);
+	if (mElse)
+		mElse->accept(v);
+
+	v.leave(*this);
+}
+
+ConditionalElse::ConditionalElse() {}
+
+ConditionalElse::ConditionalElse(std::shared_ptr<StmtGroup> stmts)
+: mStmts(stmts) {}
+
+void ConditionalElse::setStmts(std::shared_ptr<StmtGroup> stmt) {
+	mStmts = stmt;
+}
+
+std::shared_ptr<StmtGroup> ConditionalElse::getStmts() {
+	return mStmts;
+}
+
+void ConditionalElse::accept(Visitor& v) {
+	if (!v.visit(*this))
+		return;
+
+	mStmts->accept(v);
 
 	v.leave(*this);
 }

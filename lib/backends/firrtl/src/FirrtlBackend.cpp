@@ -40,12 +40,15 @@ Backend::Backend(std::ostream &os) : ::Firrtlator::Backend::BackendBase(os) {
 }
 
 void Backend::generate(std::shared_ptr<Circuit> ir) {
-	Visitor v(mStream);
+	std::basic_stringstream<char> sstream;
+	Visitor v(&sstream);
 
 	ir->accept(v);
+
+	*mStream << sstream.str();
 }
 
-Visitor::Visitor(std::ostream *os) {
+Visitor::Visitor(std::basic_stringstream<char, std::char_traits<char> > *os) {
 	mStream = os;
 }
 
@@ -63,7 +66,7 @@ bool Visitor::visit(Circuit &c) {
 }
 
 void Visitor::leave(Circuit &c) {
-	*mStream << dedent << endl;
+	*mStream << dedent;
 }
 
 bool Visitor::visit(Module &m) {
@@ -78,7 +81,7 @@ bool Visitor::visit(Module &m) {
 }
 
 void Visitor::leave(Module &m) {
-	*mStream << dedent << endl;
+	*mStream << dedent;
 }
 
 bool Visitor::visit(Port &p) {
@@ -149,6 +152,14 @@ bool Visitor::visit(TypeVector &) {
 
 void Visitor::leave(TypeVector &t) {
 	*mStream << "[" << std::to_string(t.getSize()) << "]";
+}
+
+bool Visitor::visit(StmtGroup &g) {
+	return true;
+}
+
+void Visitor::leave(StmtGroup &g) {
+
 }
 
 bool Visitor::visit(Wire &w) {
@@ -281,23 +292,26 @@ bool Visitor::visit(Conditional &c) {
 	outputInfo(c);
 	*mStream << indent << endl;
 
-	for (auto s : c.getIfStmts())
-		s->accept(*this);
+	c.getThen()->accept(*this);
 
-	*mStream << dedent << endl;
+	*mStream << dedent;
 
-	auto elses = c.getElseStmts();
-	if (elses.size() > 0) {
-		*mStream << "else :";
-		if (c.getElseInfo())
-			*mStream << " @[" << c.getElseInfo()->getValue() << "]";
-		*mStream << indent << endl;
-		for (auto s : elses)
-			s->accept(*this);
-		*mStream << dedent << endl;
-	}
+	if (c.getElse())
+		c.getElse()->accept(*this);
 
 	return false;
+}
+
+bool Visitor::visit(ConditionalElse &e) {
+	*mStream << "else :";
+	outputInfo(e);
+	*mStream << indent << endl;
+
+	e.getStmts()->accept(*this);
+
+	*mStream << dedent;
+
+	return true;
 }
 
 bool Visitor::visit(Stop &s) {

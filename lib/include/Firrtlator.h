@@ -48,7 +48,8 @@ public:
 	} BackendDescriptor;
 
 	static std::vector<BackendDescriptor> getBackends();
-	void generate(std::string filename, std::string type = "fir");
+	static std::string getBackend(std::string type);
+	void generate(std::string filename, std::string backend = "FIRRTL");
 private:
 	class impl;
 	std::unique_ptr<impl> pimpl;

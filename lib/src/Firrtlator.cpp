@@ -70,21 +70,37 @@ void Firrtlator::elaborate() {
 	// Nothing for now
 }
 
-void pass(std::string id) {
+void Firrtlator::pass(std::string id) {
 	// None so far
 }
 
 void Firrtlator::generate(std::string filename, std::string type) {
-	if (type == "fir") {
-		Backend::Firrtl::Backend backend(std::cout);
-		backend.generate(pimpl->mIR);
-	} else {
-		throw std::runtime_error("Unknown backend");
-	}
+	std::shared_ptr<Backend::BackendBase> backend;
+
+	std::fstream fs;
+    fs.open (filename, std::fstream::out);
+
+	backend = Backend::Registry::create(type, fs);
+	backend->generate(pimpl->mIR);
+
+	fs.close();
 }
 
 std::vector<Firrtlator::BackendDescriptor> Firrtlator::getBackends() {
 	return Backend::Registry::getDescriptors();
+}
+
+std::string Firrtlator::getBackend(std::string type) {
+	auto desc = Backend::Registry::getDescriptors();
+
+	for (auto b : desc) {
+		if (std::find(b.filetypes.begin(), b.filetypes.end(), type)
+			!= b.filetypes.end()) {
+			return b.name;
+		}
+	}
+
+	throw std::runtime_error("Cannot find backend for: " + type);
 }
 
 

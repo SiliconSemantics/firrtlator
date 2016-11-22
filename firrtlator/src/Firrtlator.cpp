@@ -70,5 +70,13 @@ int main(int argc, char* argv[]) {
 		std::cout << "Failed parsing " << input_files[0] << std::endl;
 	}
 
-	firrtlator.generate(output_file, "fir");
+	std::string::size_type pos = output_file.find_last_of(".");
+	if (pos == std::string::npos) {
+		std::cout << "Cannot determine the output file type" << std::endl;
+		exit(1);
+	}
+
+	std::string ext = output_file.substr(pos+1, -1);
+
+	firrtlator.generate(output_file, firrtlator.getBackend(ext));
 }
