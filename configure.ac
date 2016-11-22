@@ -24,7 +24,7 @@ AM_SILENT_RULES([yes])
 LT_INIT([disable-static pic-only])
 AC_PREFIX_DEFAULT([/usr])
 
-BOOST_REQUIRE([1.41])
+BOOST_REQUIRE([1.58])
 
 AM_CXXFLAGS="-Wall \
     -Wmissing-declarations -Wpointer-arith \

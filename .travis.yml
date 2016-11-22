@@ -1,0 +1,15 @@
+dist: trusty
+sudo: enabled
+
+language: c++
+
+before_install:
+  - sudo add-apt-repository ppa:kzemek/boost -y
+  - sudo apt-get update -q
+  - sudo apt-get install -y libboost1.58-dev
+  - ./autogen.sh
+
+script:
+  - ./configure
+  - make
+
