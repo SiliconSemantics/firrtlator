@@ -23,13 +23,13 @@ libfirrtlator_la_SOURCES = \
 	backends/generic/src/StreamIndentation.cpp
 
 libfirrtlator_la_LDFLAGS = $(AM_LDFLAGS) $(LTLDFLAGS)
-
-libfirrtlator_la_CXXFLAGS = $(AM_CXXFLAGS) -include $(top_builddir)/config.h \
+libfirrtlator_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
+	-include $(top_builddir)/config.h \
 	-I $(srcdir)/include \
 	-I $(srcdir)/frontends \
 	-I $(srcdir)/frontends/firrtl/include \
 	-I $(srcdir)/backends \
 	-I $(srcdir)/backends/generic/include \
 	-I $(srcdir)/backends/firrtl/include \
-	-I $(srcdir)/backends/tree/include 
-	
+	-I $(srcdir)/backends/tree/include
+libfirrtlator_la_CXXFLAGS = $(AM_CXXFLAGS)
