@@ -20,17 +20,18 @@
  * SOFTWARE.
  */
 
-#include "Firrtlator.h"
 #include "FirrtlatorFrontend.h"
 
 namespace Firrtlator {
+namespace Frontend {
 
-Frontend::~Frontend() {
+FrontendBase::~FrontendBase() {
 
 }
 
-std::shared_ptr<Circuit> Frontend::getIR() {
+std::shared_ptr<Circuit> FrontendBase::getIR() {
 	return mIR;
 }
 
+}
 }

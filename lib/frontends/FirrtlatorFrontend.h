@@ -29,10 +29,11 @@
 #include "IR.h"
 
 namespace Firrtlator {
+namespace Frontend {
 
-class Frontend {
+class FrontendBase {
 public:
-    virtual ~Frontend();
+    virtual ~FrontendBase();
     virtual bool parseString(std::string::const_iterator begin,
                              std::string::const_iterator end) = 0;
     virtual std::shared_ptr<Circuit> getIR();
@@ -40,4 +41,5 @@ protected:
     std::shared_ptr<Circuit> mIR;
 };
 
+}
 }

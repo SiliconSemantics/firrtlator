@@ -24,6 +24,8 @@
 #include <boost/spirit/include/lex_lexertl.hpp>
 
 namespace Firrtlator {
+namespace Frontend {
+namespace Firrtl {
 
 namespace lex = boost::spirit::lex;
 
@@ -238,4 +240,6 @@ public:
 	}
 };
 
+}
+}
 }

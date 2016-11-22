@@ -25,11 +25,15 @@
 #include "FirrtlatorFrontend.h"
 
 namespace Firrtlator {
+namespace Frontend {
+namespace Firrtl {
 
-class FirrtlFrontend : public Frontend {
+class FirrtlFrontend : public FrontendBase {
 public:
 	virtual bool parseString(std::string::const_iterator begin,
 			std::string::const_iterator end);
 };
 
+}
+}
 }

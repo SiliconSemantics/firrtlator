@@ -39,7 +39,7 @@ Firrtlator::~Firrtlator() {}
 bool Firrtlator::parse(std::string::const_iterator begin,
 		std::string::const_iterator end, std::string type) {
 	if (type == "fir") {
-		FirrtlFrontend frontend;
+		Frontend::Firrtl::FirrtlFrontend frontend;
 		if (!frontend.parseString(begin, end))
 			return false;
 		pimpl->mIR = frontend.getIR();

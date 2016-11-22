@@ -33,6 +33,8 @@
 #include <stack>
 
 namespace Firrtlator {
+namespace Frontend {
+namespace Firrtl {
 
 namespace lex = boost::spirit::lex;
 namespace phoenix = boost::phoenix; 
@@ -136,24 +138,6 @@ public:
 				| whitespace_[lex::_pass=lex::pass_flags::pass_ignore]
 				;
 }
-
-#define EMIT(x) if (it->id() == x.id()) { return #x; }
-
-	template <typename TokenIter>
-	std::string nameof(TokenIter it)
-	{
-		if (it->id() == INDENT) { return "INDENT"; }
-		if (it->id() == DEDENT) { return "DEDENT"; }
-		EMIT(whitespace_);
-		EMIT(identifier);
-		EMIT(comment_);
-		EMIT(int_);
-		EMIT(circuit);
-		EMIT(info);
-		return "other";
-	}
-#undef EMIT
-
 	lex::token_def<> indent_;
 	lex::token_def<lex::omit> newline_, whitespace_, emptyline;
 	lex::token_def<> comment_;
@@ -180,3 +164,6 @@ public:
 	std::stack<int> scopeLevels_;
 };
 }
+}
+}
+

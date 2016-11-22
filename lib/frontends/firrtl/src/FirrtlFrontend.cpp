@@ -28,6 +28,8 @@
 #include <iostream>
 
 namespace Firrtlator {
+namespace Frontend {
+namespace Firrtl {
 
 bool FirrtlFrontend::parseString(std::string::const_iterator begin,
         std::string::const_iterator end) {
@@ -42,14 +44,6 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 		lexer_type::iterator_type first = token_lexer.begin(begin, end);
 		lexer_type::iterator_type last = token_lexer.end();
 
-		/*while (first != last && token_is_valid(*first))
-		{
-			std::cout << "Token: " << token_lexer.nameof(first)
-	        				<< " ('" << first->value() << "')\n";
-			++first;
-		}
-
-		return false;*/
 		FirrtlGrammar<iterator_type> g(token_lexer);
 
 		bool res = lex::tokenize_and_parse(begin, end, token_lexer, g, mIR);
@@ -64,4 +58,6 @@ bool FirrtlFrontend::parseString(std::string::const_iterator begin,
 	return true;
 }
 
+}
+}
 }
