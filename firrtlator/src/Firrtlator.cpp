@@ -68,10 +68,24 @@ void help(void) {
 	std::cout << "   -i <input>     Set input file. Currently only one file is supported." << std::endl;
 	std::cout << std::endl;
 
-	std::vector<::Firrtlator::Firrtlator::BackendDescriptor> desc;
-	desc = ::Firrtlator::Firrtlator::getBackends();
+	std::vector<::Firrtlator::Firrtlator::FrontendDescriptor> fdesc;
+	fdesc = ::Firrtlator::Firrtlator::getFrontends();
+	std::cout << "Supported frontends:" << std::endl;
+	for (auto f : fdesc) {
+		std::cout << "  " << f.name << std::endl;
+		std::cout << "    " << f.description << std::endl;
+		std::cout << "    Filetypes:";
+		for (auto t : f.filetypes) {
+			std::cout << " " << t;
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+
+	std::vector<::Firrtlator::Firrtlator::BackendDescriptor> bdesc;
+	bdesc = ::Firrtlator::Firrtlator::getBackends();
 	std::cout << "Supported backends:" << std::endl;
-	for (auto b : desc) {
+	for (auto b : bdesc) {
 		std::cout << "  " << b.name << std::endl;
 		std::cout << "    " << b.description << std::endl;
 		std::cout << "    Filetypes:";

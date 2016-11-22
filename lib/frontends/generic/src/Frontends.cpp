@@ -33,5 +33,10 @@ std::shared_ptr<Circuit> FrontendBase::getIR() {
 	return mIR;
 }
 
+void Registry::registerFrontend(const std::string &name,
+	FrontendFactory* factory) {
+	getPassMap()[name] = factory;
+}
+
 }
 }

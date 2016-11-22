@@ -45,7 +45,17 @@ public:
 		std::string name;
 		std::string description;
 		std::vector<std::string> filetypes;
+	} FrontendDescriptor;
+
+	static std::vector<FrontendDescriptor> getFrontends();
+	static std::string getFrontend(std::string type);
+
+	typedef struct {
+		std::string name;
+		std::string description;
+		std::vector<std::string> filetypes;
 	} BackendDescriptor;
+
 
 	static std::vector<BackendDescriptor> getBackends();
 	static std::string getBackend(std::string type);

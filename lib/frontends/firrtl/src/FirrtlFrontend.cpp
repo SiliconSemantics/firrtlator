@@ -31,7 +31,13 @@ namespace Firrtlator {
 namespace Frontend {
 namespace Firrtl {
 
-bool FirrtlFrontend::parseString(std::string::const_iterator begin,
+std::string Frontend::name = "FIRRTL";
+std::string Frontend::description = "Reads FIRRTL files";
+std::vector<std::string> Frontend::filetypes = { "fir" };
+
+REGISTER_FRONTEND(Frontend)
+
+bool Frontend::parseString(std::string::const_iterator begin,
         std::string::const_iterator end) {
 
 		typedef lex::lexertl::token<std::string::const_iterator,

@@ -28,10 +28,13 @@ namespace Firrtlator {
 namespace Frontend {
 namespace Firrtl {
 
-class FirrtlFrontend : public FrontendBase {
+class Frontend : public ::Firrtlator::Frontend::FrontendBase {
 public:
 	virtual bool parseString(std::string::const_iterator begin,
 			std::string::const_iterator end);
+	static std::string name;
+	static std::string description;
+	static std::vector<std::string> filetypes;
 };
 
 }

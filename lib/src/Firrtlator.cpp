@@ -36,10 +36,27 @@ Firrtlator::Firrtlator() : pimpl(new impl()) {}
 
 Firrtlator::~Firrtlator() {}
 
+std::vector<Firrtlator::FrontendDescriptor> Firrtlator::getFrontends() {
+	return Frontend::Registry::getDescriptors();
+}
+
+std::string Firrtlator::getFrontend(std::string type) {
+	auto desc = Frontend::Registry::getDescriptors();
+
+	for (auto f : desc) {
+		if (std::find(f.filetypes.begin(), f.filetypes.end(), type)
+			!= f.filetypes.end()) {
+			return f.name;
+		}
+	}
+
+	throw std::runtime_error("Cannot find backend for: " + type);
+}
+
 bool Firrtlator::parse(std::string::const_iterator begin,
 		std::string::const_iterator end, std::string type) {
 	if (type == "fir") {
-		Frontend::Firrtl::FirrtlFrontend frontend;
+		Frontend::Firrtl::Frontend frontend;
 		if (!frontend.parseString(begin, end))
 			return false;
 		pimpl->mIR = frontend.getIR();
