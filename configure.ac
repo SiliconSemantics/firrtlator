@@ -30,6 +30,7 @@ AM_CXXFLAGS="-Wall \
     -Wmissing-declarations -Wpointer-arith \
     -Wsign-compare -Wchar-subscripts -Wshadow \
     -Wformat-security -Wtype-limits \
+    -pedantic -pedantic-errors -Werror\
     -fvisibility=hidden"
 AC_SUBST([AM_CXXFLAGS])
 

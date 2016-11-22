@@ -67,10 +67,10 @@ public:
 , TERM(mem)
 , TERM(cmem)
 , TERM(smem)
+, TERM(mport)
 , TERM(inst)
 , TERM(of)
 , TERM(node)
-, TERM(mport)
 , TERM(infer)
 , TERM(flip)
 , TERM(with)
@@ -160,8 +160,8 @@ public:
 	lex::token_def<std::string> identifier;
 	lex::token_def<std::string> info;
 
-	lex::token_def<> circuit, module, extmodule, defname, parameter;
-	lex::token_def<> input, output;
+	lex::token_def<> circuit, module, extmodule;
+	lex::token_def<> input, output, defname, parameter;
 	lex::token_def<> UInt, SInt, Clock;
 	lex::token_def<> wire, reg, mem, cmem, smem, mport, inst, of, node, infer;
 	lex::token_def<> flip, with, reset, is, invalid;

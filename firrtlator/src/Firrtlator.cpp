@@ -6,31 +6,10 @@
 #include <string>
 #include <vector>
 
-void help() {
-	std::cout << "Usage: firrtlator [options] <output>" << std::endl;
-	std::cout << "  <output> is an output file name. The extension hints used backend (see below)." << std::endl;
-	std::cout << std::endl;
-	std::cout << "  options:" << std::endl;
-	std::cout << "   -i <input>     Set input file. Currently only one file is supported." << std::endl;
-	std::cout << std::endl;
-
-	std::vector<::Firrtlator::Firrtlator::BackendDescriptor> desc;
-	desc = ::Firrtlator::Firrtlator::getBackends();
-	std::cout << "Supported backends:" << std::endl;
-	for (auto b : desc) {
-		std::cout << "  " << b.name << std::endl;
-		std::cout << "    " << b.description << std::endl;
-		std::cout << "    Filetypes:";
-		for (auto t : b.filetypes) {
-			std::cout << " " << t;
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-}
+void help(void);
 
 int main(int argc, char* argv[]) {
-	int c, idx;
+	int c;
 
 	std::vector<std::string> input_files;
 	std::string output_file = "out.fir";
@@ -79,4 +58,27 @@ int main(int argc, char* argv[]) {
 	std::string ext = output_file.substr(pos+1, -1);
 
 	firrtlator.generate(output_file, firrtlator.getBackend(ext));
+}
+
+void help(void) {
+	std::cout << "Usage: firrtlator [options] <output>" << std::endl;
+	std::cout << "  <output> is an output file name. The extension hints used backend (see below)." << std::endl;
+	std::cout << std::endl;
+	std::cout << "  options:" << std::endl;
+	std::cout << "   -i <input>     Set input file. Currently only one file is supported." << std::endl;
+	std::cout << std::endl;
+
+	std::vector<::Firrtlator::Firrtlator::BackendDescriptor> desc;
+	desc = ::Firrtlator::Firrtlator::getBackends();
+	std::cout << "Supported backends:" << std::endl;
+	for (auto b : desc) {
+		std::cout << "  " << b.name << std::endl;
+		std::cout << "    " << b.description << std::endl;
+		std::cout << "    Filetypes:";
+		for (auto t : b.filetypes) {
+			std::cout << " " << t;
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
 }

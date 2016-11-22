@@ -33,7 +33,7 @@ Type::Type(Basetype type) : mBasetype(type) {}
 TypeInt::TypeInt() : TypeInt(false) {}
 
 TypeInt::TypeInt(bool sign, int width)
-: mWidth(width), mSigned(sign), Type(INT) {}
+: Type(INT), mWidth(width), mSigned(sign) {}
 
 void TypeInt::setWidth(int width) {
 	mWidth = width;
@@ -63,7 +63,7 @@ void TypeClock::accept(Visitor& v) {
 
 Field::Field() : Field("", nullptr) {}
 Field::Field(std::string id, std::shared_ptr<Type> type, bool flip)
-: mFlip(flip), mType(type), IRNode(id) {}
+: IRNode(id), mFlip(flip), mType(type) {}
 
 void Field::setType(std::shared_ptr<Type> t) {
 	mType = t;
@@ -98,7 +98,7 @@ void TypeBundle::accept(Visitor& v) {
 
 }
 
-TypeVector::TypeVector() : mSize(0), Type(VECTOR) { }
+TypeVector::TypeVector() : Type(VECTOR), mSize(0) { }
 
 void TypeVector::setSize(int size) {
 	mSize = size;

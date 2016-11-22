@@ -39,7 +39,7 @@ Expression::Gender Expression::getGender() {
 
 Reference::Reference() : Reference("") {}
 
-Reference::Reference(std::string id) : mToString(id), mTo(nullptr) {}
+Reference::Reference(std::string id) : mTo(nullptr), mToString(id) {}
 
 bool Reference::isResolved() {
 	return (mTo != nullptr && mTo != 0);
@@ -92,7 +92,7 @@ void Constant::accept(Visitor& v) {
 SubField::SubField() : SubField(nullptr, nullptr) {}
 
 SubField::SubField(std::shared_ptr<Reference> id, std::shared_ptr<Expression> of)
-: mField(id), mOf(of) {}
+: mOf(of), mField(id) {}
 
 std::shared_ptr<Expression> SubField::getOf() {
 	return mOf;
@@ -115,7 +115,7 @@ void SubField::accept(Visitor& v) {
 SubIndex::SubIndex() : SubIndex(-1, nullptr) {}
 
 SubIndex::SubIndex(int index, std::shared_ptr<Expression> of)
-: mIndex(index), mOf(of) {}
+: mOf(of), mIndex(index) {}
 
 std::shared_ptr<Expression> SubIndex::getOf() {
 	return mOf;
@@ -286,14 +286,14 @@ std::shared_ptr<PrimOp> PrimOp::generate(const std::string &s) {
 }
 
 void PrimOp::addOperand(std::shared_ptr<Expression> o) {
-	if (mOperands.size() == mNumOperands) {
+	if (mOperands.size() == (unsigned) mNumOperands) {
 		throw std::runtime_error("Too many operands");
 	}
 	mOperands.push_back(o);
 }
 
 void PrimOp::addParameter(int p) {
-	if (mParameters.size() == mNumParameters) {
+	if (mParameters.size() == (unsigned) mNumParameters) {
 		throw std::runtime_error("Too many parameters");
 	}
 	mParameters.push_back(p);

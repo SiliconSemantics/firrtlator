@@ -33,7 +33,7 @@ std::string Backend::name = "dot";
 std::string Backend::description = "Generates graphviz dot files";
 std::vector<std::string> Backend::filetypes = { "dot" };
 
-REGISTER_BACKEND(Backend);
+REGISTER_BACKEND(Backend)
 
 Backend::Backend(std::ostream &os) : BackendBase(os) {
 

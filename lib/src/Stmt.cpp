@@ -68,7 +68,7 @@ void StmtGroup::accept(Visitor& v) {
 Wire::Wire() : Wire("", nullptr) {}
 
 Wire::Wire(std::string id, std::shared_ptr<Type> type)
-: mType(type), Stmt(id) {}
+: Stmt(id), mType(type) {}
 
 std::shared_ptr<Type> Wire::getType() {
 	return mType;
@@ -87,7 +87,7 @@ Reg::Reg() : Reg("", nullptr, nullptr) {}
 
 Reg::Reg(std::string id, std::shared_ptr<Type> type,
 		std::shared_ptr<Expression> clock)
-: mType(type), mClock(clock), Stmt(id) {}
+: Stmt(id), mType(type), mClock(clock) {}
 
 std::shared_ptr<Type> Reg::getType() {
 	return mType;
@@ -130,7 +130,7 @@ std::shared_ptr<Expression> Reg::getResetValue() {
 Instance::Instance() : Instance("", nullptr) {}
 
 Instance::Instance(std::string id, std::shared_ptr<Reference> of)
-: mOf(of), Stmt(id) {}
+: Stmt(id), mOf(of) {}
 
 std::shared_ptr<Reference> Instance::getOf() {
 	return mOf;
@@ -148,7 +148,7 @@ void Instance::accept(Visitor& v) {
 Node::Node() : Node("", nullptr) {}
 
 Node::Node(std::string id, std::shared_ptr<Expression> expr)
-: mExpr(expr), Stmt(id) {}
+: Stmt(id), mExpr(expr) {}
 
 std::shared_ptr<Expression> Node::getExpression() {
 	return mExpr;

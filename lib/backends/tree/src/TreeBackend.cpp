@@ -36,7 +36,7 @@ std::string Backend::name = "tree";
 std::string Backend::description = "Dump the IR tree in ASCII";
 std::vector<std::string> Backend::filetypes = { "tree" };
 
-REGISTER_BACKEND(Backend);
+REGISTER_BACKEND(Backend)
 
 Backend::Backend(std::ostream &os) : BackendBase(os) {
 
