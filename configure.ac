@@ -24,6 +24,8 @@ AM_SILENT_RULES([yes])
 LT_INIT([disable-static pic-only])
 AC_PREFIX_DEFAULT([/usr])
 
+BOOST_REQUIRE([1.41])
+
 AM_CFLAGS="-Wall \
     -Wmissing-declarations -Wmissing-prototypes \
     -Wnested-externs -Wpointer-arith \
