@@ -30,90 +30,90 @@ class Visitor {
 public:
 	virtual ~Visitor();
 
-	virtual bool visit(Circuit &) = 0;
-	virtual void leave(Circuit &){};
+	virtual bool visit(std::shared_ptr<Circuit>) = 0;
+	virtual void leave(std::shared_ptr<Circuit>){};
 
-	virtual bool visit(Module &) = 0;
-	virtual void leave(Module &){};
+	virtual bool visit(std::shared_ptr<Module>) = 0;
+	virtual void leave(std::shared_ptr<Module>){};
 
-	virtual bool visit(Port &) = 0;
-	virtual void leave(Port &){};
+	virtual bool visit(std::shared_ptr<Port>) = 0;
+	virtual void leave(std::shared_ptr<Port>){};
 
-	virtual bool visit(Parameter &) = 0;
-	virtual void leave(Parameter &){};
+	virtual bool visit(std::shared_ptr<Parameter>) = 0;
+	virtual void leave(std::shared_ptr<Parameter>){};
 
-	virtual void visit(TypeInt &) = 0;
+	virtual void visit(std::shared_ptr<TypeInt>) = 0;
 
-	virtual void visit(TypeClock &) = 0;
+	virtual void visit(std::shared_ptr<TypeClock>) = 0;
 
-	virtual bool visit(Field &) = 0;
-	virtual void leave(Field &){};
+	virtual bool visit(std::shared_ptr<Field>) = 0;
+	virtual void leave(std::shared_ptr<Field>){};
 
-	virtual bool visit(TypeBundle &) = 0;
-	virtual void leave(TypeBundle &){};
+	virtual bool visit(std::shared_ptr<TypeBundle>) = 0;
+	virtual void leave(std::shared_ptr<TypeBundle>){};
 
-	virtual bool visit(TypeVector &) = 0;
-	virtual void leave(TypeVector &){};
+	virtual bool visit(std::shared_ptr<TypeVector>) = 0;
+	virtual void leave(std::shared_ptr<TypeVector>){};
 
-	virtual bool visit(StmtGroup &) = 0;
-	virtual void leave(StmtGroup &){};
+	virtual bool visit(std::shared_ptr<StmtGroup>) = 0;
+	virtual void leave(std::shared_ptr<StmtGroup>){};
 
-	virtual bool visit(Wire &) = 0;
-	virtual void leave(Wire &){};
+	virtual bool visit(std::shared_ptr<Wire>) = 0;
+	virtual void leave(std::shared_ptr<Wire>){};
 
-	virtual bool visit(Reg &) = 0;
-	virtual void leave(Reg &){};
+	virtual bool visit(std::shared_ptr<Reg>) = 0;
+	virtual void leave(std::shared_ptr<Reg>){};
 
-	virtual bool visit(Instance &) = 0;
-	virtual void leave(Instance &){};
+	virtual bool visit(std::shared_ptr<Instance>) = 0;
+	virtual void leave(std::shared_ptr<Instance>){};
 
-	virtual bool visit(Memory &) = 0;
-	virtual void leave(Memory &){};
+	virtual bool visit(std::shared_ptr<Memory>) = 0;
+	virtual void leave(std::shared_ptr<Memory>){};
 
-	virtual bool visit(Node &) = 0;
-	virtual void leave(Node &){};
+	virtual bool visit(std::shared_ptr<Node>) = 0;
+	virtual void leave(std::shared_ptr<Node>){};
 
-	virtual bool visit(Connect &) = 0;
-	virtual void leave(Connect &){};
+	virtual bool visit(std::shared_ptr<Connect>) = 0;
+	virtual void leave(std::shared_ptr<Connect>){};
 
-	virtual bool visit(Invalid &) = 0;
-	virtual void leave(Invalid &){};
+	virtual bool visit(std::shared_ptr<Invalid>) = 0;
+	virtual void leave(std::shared_ptr<Invalid>){};
 
-	virtual bool visit(Conditional &) = 0;
-	virtual void leave(Conditional &){};
+	virtual bool visit(std::shared_ptr<Conditional>) = 0;
+	virtual void leave(std::shared_ptr<Conditional>){};
 
-	virtual bool visit(ConditionalElse &) = 0;
-	virtual void leave(ConditionalElse &){};
+	virtual bool visit(std::shared_ptr<ConditionalElse>) = 0;
+	virtual void leave(std::shared_ptr<ConditionalElse>){};
 
-	virtual bool visit(Stop &) = 0;
-	virtual void leave(Stop &){};
+	virtual bool visit(std::shared_ptr<Stop>) = 0;
+	virtual void leave(std::shared_ptr<Stop>){};
 
-	virtual bool visit(Printf &) = 0;
-	virtual void leave(Printf &){};
+	virtual bool visit(std::shared_ptr<Printf>) = 0;
+	virtual void leave(std::shared_ptr<Printf>){};
 
-	virtual void visit(Empty &) = 0;
+	virtual void visit(std::shared_ptr<Empty>) = 0;
 
-	virtual void visit(Reference &) = 0;
+	virtual void visit(std::shared_ptr<Reference>) = 0;
 
-	virtual void visit(Constant &) = 0;
+	virtual void visit(std::shared_ptr<Constant>) = 0;
 
-	virtual bool visit(SubField &) = 0;
-	virtual void leave(SubField &){};
+	virtual bool visit(std::shared_ptr<SubField>) = 0;
+	virtual void leave(std::shared_ptr<SubField>){};
 
-	virtual bool visit(SubIndex &) = 0;
-	virtual void leave(SubIndex &){};
+	virtual bool visit(std::shared_ptr<SubIndex>) = 0;
+	virtual void leave(std::shared_ptr<SubIndex>){};
 
-	virtual bool visit(SubAccess &) = 0;
-	virtual void leave(SubAccess &){};
+	virtual bool visit(std::shared_ptr<SubAccess>) = 0;
+	virtual void leave(std::shared_ptr<SubAccess>){};
 
-	virtual bool visit(Mux &) = 0;
-	virtual void leave(Mux &){};
+	virtual bool visit(std::shared_ptr<Mux>) = 0;
+	virtual void leave(std::shared_ptr<Mux>){};
 
-	virtual bool visit(CondValid &) = 0;
-	virtual void leave(CondValid &){};
+	virtual bool visit(std::shared_ptr<CondValid>) = 0;
+	virtual void leave(std::shared_ptr<CondValid>){};
 
-	virtual bool visit(PrimOp &) = 0;
-	virtual void leave(PrimOp &){};
+	virtual bool visit(std::shared_ptr<PrimOp>) = 0;
+	virtual void leave(std::shared_ptr<PrimOp>){};
 
 	// TODO: all PrimOps and default calls base
 };

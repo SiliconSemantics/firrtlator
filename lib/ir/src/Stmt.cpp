@@ -55,13 +55,13 @@ StmtGroup::iterator StmtGroup::end() {
 }
 
 void StmtGroup::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<StmtGroup>()))
 		return;
 
 	for (auto s : mGroup)
 		s->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<StmtGroup>());
 }
 
 
@@ -75,12 +75,12 @@ std::shared_ptr<Type> Wire::getType() {
 }
 
 void Wire::accept(Visitor& v) {
-	if(!v.visit(*this))
+	if(!v.visit(shared_from_base<Wire>()))
 		return;
 
 	mType->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Wire>());
 }
 
 Reg::Reg() : Reg("", nullptr, nullptr) {}
@@ -98,7 +98,7 @@ std::shared_ptr<Expression> Reg::getClock() {
 }
 
 void Reg::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Reg>()))
 		return;
 
 	mType->accept(v);
@@ -108,6 +108,8 @@ void Reg::accept(Visitor& v) {
 		mResetTrigger->accept(v);
 		mResetValue->accept(v);
 	}
+
+	v.leave(shared_from_base<Circuit>());
 }
 
 void Reg::setResetTrigger(std::shared_ptr<Expression> trigger) {
@@ -137,12 +139,12 @@ std::shared_ptr<Reference> Instance::getOf() {
 }
 
 void Instance::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Instance>()))
 		return;
 
 	mOf->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Instance>());
 }
 
 Node::Node() : Node("", nullptr) {}
@@ -155,12 +157,12 @@ std::shared_ptr<Expression> Node::getExpression() {
 }
 
 void Node::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Node>()))
 		return;
 
 	mExpr->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Node>());
 }
 
 Connect::Connect() : Connect(nullptr, nullptr) {}
@@ -183,13 +185,13 @@ std::shared_ptr<Expression> Connect::getFrom() {
 }
 
 void Connect::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Connect>()))
 		return;
 
 	mTo->accept(v);
 	mFrom->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Connect>());
 }
 
 Invalid::Invalid() : Invalid(nullptr) {}
@@ -202,12 +204,12 @@ std::shared_ptr<Expression> Invalid::getExpr() {
 }
 
 void Invalid::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Invalid>()))
 		return;
 
 	mExp->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Invalid>());
 }
 
 Conditional::Conditional() : Conditional(nullptr) {}
@@ -236,7 +238,7 @@ std::shared_ptr<ConditionalElse> Conditional::getElse() {
 }
 
 void Conditional::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Conditional>()))
 		return;
 
 	mCond->accept(v);
@@ -246,7 +248,7 @@ void Conditional::accept(Visitor& v) {
 	if (mElse)
 		mElse->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Conditional>());
 }
 
 ConditionalElse::ConditionalElse() {}
@@ -263,12 +265,12 @@ std::shared_ptr<StmtGroup> ConditionalElse::getStmts() {
 }
 
 void ConditionalElse::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<ConditionalElse>()))
 		return;
 
 	mStmts->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<ConditionalElse>());
 }
 
 Stop::Stop() : Stop(nullptr, nullptr, -1) {}
@@ -291,13 +293,13 @@ int Stop::getCode() {
 }
 
 void Stop::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Stop>()))
 		return;
 
 	mClock->accept(v);
 	mCond->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Stop>());
 }
 
 Printf::Printf() : Printf(nullptr, nullptr, "") {}
@@ -326,7 +328,7 @@ std::vector<std::shared_ptr<Expression> > Printf::getArguments() {
 }
 
 void Printf::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Printf>()))
 		return;
 
 	mClock->accept(v);
@@ -335,11 +337,11 @@ void Printf::accept(Visitor& v) {
 	for (auto a : mArguments)
 		a->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Printf>());
 }
 
 void Empty::accept(Visitor& v) {
-	v.visit(*this);
+	v.visit(shared_from_base<Empty>());
 }
 
 

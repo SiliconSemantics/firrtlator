@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-#include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
+#include "Visitor.h"
 #include "Util.h"
 
 namespace Firrtlator {
@@ -190,7 +190,7 @@ void Memory::addReadWriterToType(std::string rw) {
 }
 
 void Memory::accept(Visitor& v) {
-
+	v.visit(shared_from_base<Memory>());
 }
 
 }

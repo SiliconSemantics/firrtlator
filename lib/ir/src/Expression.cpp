@@ -50,7 +50,7 @@ std::string Reference::getToString() {
 }
 
 void Reference::accept(Visitor& v) {
-	v.visit(*this);
+	v.visit(shared_from_base<Reference>());
 }
 
 Constant::Constant() : Constant(nullptr, -1, UNDEFINED) {}
@@ -86,7 +86,7 @@ std::string Constant::getString() {
 }
 
 void Constant::accept(Visitor& v) {
-	v.visit(*this);
+	v.visit(shared_from_base<Constant>());
 }
 
 SubField::SubField() : SubField(nullptr, nullptr) {}
@@ -103,13 +103,13 @@ std::shared_ptr<Reference> SubField::getField() {
 }
 
 void SubField::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<SubField>()))
 		return;
 
 	mOf->accept(v);
 	mField->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<SubField>());
 }
 
 SubIndex::SubIndex() : SubIndex(-1, nullptr) {}
@@ -126,7 +126,12 @@ int SubIndex::getIndex() {
 }
 
 void SubIndex::accept(Visitor& v) {
+	if(!v.visit(shared_from_base<SubIndex>()))
+		return;
 
+	mOf->accept(v);
+
+	v.leave(shared_from_base<SubIndex>());
 }
 
 SubAccess::SubAccess() : SubAccess(nullptr, nullptr) {}
@@ -144,13 +149,13 @@ std::shared_ptr<Expression> SubAccess::getExp() {
 }
 
 void SubAccess::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<SubAccess>()))
 		return;
 
 	mOf->accept(v);
 	mExp->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<SubAccess>());
 }
 
 Mux::Mux() : Mux(nullptr, nullptr, nullptr) {}
@@ -172,14 +177,14 @@ std::shared_ptr<Expression> Mux::getB() {
 }
 
 void Mux::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Mux>()))
 		return;
 
 	mSel->accept(v);
 	mA->accept(v);
 	mB->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Mux>());
 }
 
 CondValid::CondValid() : CondValid(nullptr, nullptr) {}
@@ -197,13 +202,13 @@ std::shared_ptr<Expression> CondValid::getA() {
 }
 
 void CondValid::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<CondValid>()))
 		return;
 
 	mSel->accept(v);
 	mA->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<CondValid>());
 }
 
 const bool PrimOp::lookup(std::string v, Operation &op) {
@@ -312,13 +317,13 @@ std::vector<int> PrimOp::getParameters() {
 }
 
 void PrimOp::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<PrimOp>()))
 		return;
 
 	for (auto o : mOperands)
 		o->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<PrimOp>());
 }
 
 }

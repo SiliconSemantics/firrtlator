@@ -46,78 +46,80 @@ public:
 	Visitor(std::ostream *os);
 
 	virtual ~Visitor();
-	virtual bool visit(Circuit &);
-	virtual void leave(Circuit &);
+	virtual bool visit(std::shared_ptr<Circuit>);
+	virtual void leave(std::shared_ptr<Circuit>);
 
-	virtual bool visit(Module &);
-	virtual void leave(Module &);
+	virtual bool visit(std::shared_ptr<Module>);
+	virtual void leave(std::shared_ptr<Module>);
 
-	virtual bool visit(Port &);
-	virtual void leave(Port &);
+	virtual bool visit(std::shared_ptr<Port>);
+	virtual void leave(std::shared_ptr<Port>);
 
-	virtual bool visit(Parameter &);
+	virtual bool visit(std::shared_ptr<Parameter>);
 
-	virtual void visit(TypeInt &);
+	virtual void visit(std::shared_ptr<TypeInt>);
 
-	virtual void visit(TypeClock &);
+	virtual void visit(std::shared_ptr<TypeClock>);
 
-	virtual bool visit(Field &);
+	virtual bool visit(std::shared_ptr<Field>);
 
-	virtual bool visit(TypeBundle &);
+	virtual bool visit(std::shared_ptr<TypeBundle>);
 
-	virtual bool visit(TypeVector &);
+	virtual bool visit(std::shared_ptr<TypeVector>);
 
-	virtual bool visit(StmtGroup &);
+	virtual bool visit(std::shared_ptr<StmtGroup>);
 
-	virtual bool visit(Wire &);
+	virtual bool visit(std::shared_ptr<Wire>);
 
-	virtual bool visit(Reg &);
+	virtual bool visit(std::shared_ptr<Reg>);
 
-	virtual bool visit(Instance &);
+	virtual bool visit(std::shared_ptr<Instance>);
 
-	virtual bool visit(Memory &);
+	virtual bool visit(std::shared_ptr<Memory>);
 
-	virtual bool visit(Node &);
+	virtual bool visit(std::shared_ptr<Node>);
 
-	virtual bool visit(Connect &);
+	virtual bool visit(std::shared_ptr<Connect>);
 
-	virtual bool visit(Invalid &);
-	virtual void leave(Invalid &);
+	virtual bool visit(std::shared_ptr<Invalid>);
+	virtual void leave(std::shared_ptr<Invalid>);
 
-	virtual bool visit(Conditional &);
+	virtual bool visit(std::shared_ptr<Conditional>);
 
-	virtual bool visit(ConditionalElse &);
+	virtual bool visit(std::shared_ptr<ConditionalElse>);
 
-	virtual bool visit(Stop &);
+	virtual bool visit(std::shared_ptr<Stop>);
 
-	virtual bool visit(Printf &);
+	virtual bool visit(std::shared_ptr<Printf>);
 
-	virtual void visit(Empty &);
+	virtual void visit(std::shared_ptr<Empty>);
 
-	virtual void visit(Reference &);
+	virtual void visit(std::shared_ptr<Reference>);
 
-	virtual void visit(Constant &);
+	virtual void visit(std::shared_ptr<Constant>);
 
-	virtual bool visit(SubField &);
+	virtual bool visit(std::shared_ptr<SubField>);
 
-	virtual bool visit(SubIndex &);
+	virtual bool visit(std::shared_ptr<SubIndex>);
 
-	virtual bool visit(SubAccess &);
+	virtual bool visit(std::shared_ptr<SubAccess>);
 
-	virtual bool visit(Mux &);
+	virtual bool visit(std::shared_ptr<Mux>);
 
-	virtual bool visit(CondValid &);
+	virtual bool visit(std::shared_ptr<CondValid>);
 
-	virtual bool visit(PrimOp &);
+	virtual bool visit(std::shared_ptr<PrimOp>);
 private:
 	std::ostream *mStream;
 	std::vector<std::string> mNodes;
-	std::vector<std::tuple<IRNode*, IRNode*, std::string> > mEdges;
+	std::vector<std::tuple<std::shared_ptr<IRNode>, std::shared_ptr<IRNode>,
+		std::string> > mEdges;
 
-	std::map<IRNode*, int> mNodeDictionary;
+	std::map<std::shared_ptr<IRNode>, int> mNodeDictionary;
 
-	void addNode(IRNode* node, std::string text);
-	void addEdge(IRNode* from, IRNode* to, std::string text);
+	void addNode(std::shared_ptr<IRNode> node, std::string text);
+	void addEdge(std::shared_ptr<IRNode> from, std::shared_ptr<IRNode> to,
+			std::string text);
 };
 
 }

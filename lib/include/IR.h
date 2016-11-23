@@ -52,7 +52,7 @@ public:
 	friend std::ostream& operator<< (std::ostream &out, const Info &Info);
 };
 
-class IRNode {
+class IRNode : public std::enable_shared_from_this<IRNode> {
 public:
 	virtual ~IRNode();
 	IRNode();
@@ -67,6 +67,12 @@ protected:
 	std::shared_ptr<Info> mInfo;
 	std::string mId;
 	std::vector<std::shared_ptr<IRNode> > mReferences;
+
+    template <typename Derived>
+    std::shared_ptr<Derived> shared_from_base()
+    {
+        return std::static_pointer_cast<Derived>(shared_from_this());
+    }
 };
 
 std::ostream& operator<< (std::ostream& os, const ::Firrtlator::IRNode& n);
@@ -173,7 +179,7 @@ private:
 	int mSize;
 };
 
-class Parameter : IRNode {
+class Parameter : public IRNode {
 public:
 	Parameter();
 	virtual void accept(Visitor& v);

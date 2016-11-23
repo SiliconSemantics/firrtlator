@@ -52,13 +52,13 @@ void TypeInt::setSigned(bool sign) {
 }
 
 void TypeInt::accept(Visitor& v) {
-	v.visit(*this);
+	v.visit(shared_from_base<TypeInt>());
 }
 
 TypeClock::TypeClock() : Type(CLOCK) { }
 
 void TypeClock::accept(Visitor& v) {
-	v.visit(*this);
+	v.visit(shared_from_base<TypeClock>());
 }
 
 Field::Field() : Field("", nullptr) {}
@@ -82,7 +82,7 @@ bool Field::getFlip() {
 }
 
 void Field::accept(Visitor& v) {
-
+	v.visit(shared_from_base<Field>());
 }
 
 TypeBundle::TypeBundle() : Type(BUNDLE) {}
@@ -109,7 +109,7 @@ int TypeVector::getSize() {
 }
 
 void TypeVector::accept(Visitor& v) {
-
+	v.visit(shared_from_base<TypeVector>());
 }
 
 }

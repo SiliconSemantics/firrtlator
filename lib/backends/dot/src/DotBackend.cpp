@@ -53,18 +53,18 @@ Visitor::~Visitor() {
 
 }
 
-bool Visitor::visit(Circuit &c) {
-	addNode(&c, "circuit\n"+c.getId());
+bool Visitor::visit(std::shared_ptr<Circuit> c) {
+	addNode(c, "circuit\n"+c->getId());
 
-	for (auto m : c.getModules()) {
-		addEdge(&c, m.get(), "");
+	for (auto m : c->getModules()) {
+		addEdge(c, m, "");
 	}
 
 	return true;
 }
 
-void Visitor::leave(Circuit &c) {
-	*mStream << "diGraph " << c.getId() << " {" << indent << endl;
+void Visitor::leave(std::shared_ptr<Circuit> c) {
+	*mStream << "diGraph " << c->getId() << " {" << indent << endl;
 
 	for (auto n : mNodes)
 		*mStream << n << endl;
@@ -83,182 +83,182 @@ void Visitor::leave(Circuit &c) {
 	*mStream << dedent << endl << "}" << endl;
 }
 
-bool Visitor::visit(Module &m) {
-	addNode(&m, "module\n"+m.getId());
+bool Visitor::visit(std::shared_ptr<Module> m) {
+	addNode(m, "module\n"+m->getId());
 
-	for (auto p : m.getPorts())
-		addEdge(&m, p.get(), "");
+	for (auto p : m->getPorts())
+		addEdge(m, p, "");
 
-	addEdge(&m, m.getStmts().get(), "");
-
-	return true;
-}
-
-void Visitor::leave(Module &m) {
-}
-
-bool Visitor::visit(Port &p) {
-	addNode(&p, "port\n"+p.getId());
+	addEdge(m, m->getStmts(), "");
 
 	return true;
 }
 
-void Visitor::leave(Port &p) {
+void Visitor::leave(std::shared_ptr<Module> m) {
 }
 
-bool Visitor::visit(Parameter &) {
+bool Visitor::visit(std::shared_ptr<Port> p) {
+	addNode(p, "port\n"+p->getId());
+
 	return true;
 }
 
-void Visitor::visit(TypeInt &t) {
+void Visitor::leave(std::shared_ptr<Port> p) {
 }
 
-void Visitor::visit(TypeClock &t) {
-}
-
-bool Visitor::visit(Field &) {
+bool Visitor::visit(std::shared_ptr<Parameter> ) {
 	return true;
 }
 
-bool Visitor::visit(TypeBundle &) {
+void Visitor::visit(std::shared_ptr<TypeInt> t) {
+}
+
+void Visitor::visit(std::shared_ptr<TypeClock> t) {
+}
+
+bool Visitor::visit(std::shared_ptr<Field> ) {
 	return true;
 }
 
-bool Visitor::visit(TypeVector &) {
+bool Visitor::visit(std::shared_ptr<TypeBundle> ) {
+	return true;
+}
+
+bool Visitor::visit(std::shared_ptr<TypeVector> ) {
 	return true;
 }
 
 
-bool Visitor::visit(StmtGroup &g) {
-	addNode(&g, "stmt_group\n");
+bool Visitor::visit(std::shared_ptr<StmtGroup> g) {
+	addNode(g, "stmt_group\n");
 
 	int i = 0;
-	for (auto s : g)
-		addEdge(&g, s.get(), "[" + std::to_string(i++) + "]");
+	for (auto s : *g)
+		addEdge(g, s, "[" + std::to_string(i++) + "]");
 
 	return true;
 }
 
-bool Visitor::visit(Wire &w) {
-	addNode(&w, "wire\n"+w.getId());
+bool Visitor::visit(std::shared_ptr<Wire> w) {
+	addNode(w, "wire\n"+w->getId());
 	return true;
 }
 
-bool Visitor::visit(Reg &r) {
-	addNode(&r, "reg\n"+r.getId());
+bool Visitor::visit(std::shared_ptr<Reg> r) {
+	addNode(r, "reg\n"+r->getId());
 	return false;
 }
 
-bool Visitor::visit(Instance &i) {
-	addNode(&i, "inst:\n"+i.getId());
+bool Visitor::visit(std::shared_ptr<Instance> i) {
+	addNode(i, "inst:\n"+i->getId());
 	return true;
 }
 
-bool Visitor::visit(Memory &m) {
-	addNode(&m, "memory:\n"+m.getId());
+bool Visitor::visit(std::shared_ptr<Memory> m) {
+	addNode(m, "memory:\n"+m->getId());
 	return true;
 }
-bool Visitor::visit(Node &n) {
-	addNode(&n, "node:\n"+n.getId());
+bool Visitor::visit(std::shared_ptr<Node> n) {
+	addNode(n, "node:\n"+n->getId());
 	return true;
 }
 
-bool Visitor::visit(Connect &c) {
-	addNode(&c, "connect");
+bool Visitor::visit(std::shared_ptr<Connect> c) {
+	addNode(c, "connect");
 
-	addEdge(&c, c.getFrom().get(), "from");
-	c.getFrom()->accept(*this);
+	addEdge(c, c->getFrom(), "from");
+	c->getFrom()->accept(*this);
 
-	addEdge(&c, c.getTo().get(), "to");
-	c.getTo()->accept(*this);
+	addEdge(c, c->getTo(), "to");
+	c->getTo()->accept(*this);
 
 	return false;
 }
 
-bool Visitor::visit(Invalid &i) {
-	addNode(&i, "invalid");
+bool Visitor::visit(std::shared_ptr<Invalid> i) {
+	addNode(i, "invalid");
 	return true;
 }
 
-void Visitor::leave(Invalid& in) {
+void Visitor::leave(std::shared_ptr<Invalid> in) {
 }
 
-bool Visitor::visit(Conditional &c) {
-	addNode(&c, "conditional");
+bool Visitor::visit(std::shared_ptr<Conditional> c) {
+	addNode(c, "conditional");
 
-	addEdge(&c, c.getCondition().get(), "cond");
+	addEdge(c, c->getCondition(), "cond");
 
-	addEdge(&c, c.getThen().get(), "then");
+	addEdge(c, c->getThen(), "then");
 
-	if (c.getElse())
-		addEdge(&c, c.getElse().get(), "else");
+	if (c->getElse())
+		addEdge(c, c->getElse(), "else");
 
 	return true;
 }
 
-bool Visitor::visit(ConditionalElse &c) {
-	addNode(&c, "else");
+bool Visitor::visit(std::shared_ptr<ConditionalElse> c) {
+	addNode(c, "else");
 	return true;
 }
 
-bool Visitor::visit(Stop &s) {
-	addNode(&s, "stop");
+bool Visitor::visit(std::shared_ptr<Stop> s) {
+	addNode(s, "stop");
 	return true;
 }
 
-bool Visitor::visit(Printf &p) {
-	addNode(&p, "printf");
+bool Visitor::visit(std::shared_ptr<Printf> p) {
+	addNode(p, "printf");
 	return true;
 }
 
-void Visitor::visit(Empty &e) {
-	addNode(&e, "skip");
+void Visitor::visit(std::shared_ptr<Empty> e) {
+	addNode(e, "skip");
 }
 
-void Visitor::visit(Reference &r) {
-	addNode(&r, "ref\n" + r.getToString());
+void Visitor::visit(std::shared_ptr<Reference> r) {
+	addNode(r, "ref\n" + r->getToString());
 }
 
-void Visitor::visit(Constant &c) {
-	addNode(&c, "const");
+void Visitor::visit(std::shared_ptr<Constant> c) {
+	addNode(c, "const");
 }
 
-bool Visitor::visit(SubField &s) {
-	addNode(&s, "subfield");
+bool Visitor::visit(std::shared_ptr<SubField> s) {
+	addNode(s, "subfield");
 	return true;
 }
 
-bool Visitor::visit(SubIndex &s) {
-	addNode(&s, "subindex");
+bool Visitor::visit(std::shared_ptr<SubIndex> s) {
+	addNode(s, "subindex");
 	return true;
 }
 
-bool Visitor::visit(SubAccess &s) {
-	addNode(&s, "subaccess");
+bool Visitor::visit(std::shared_ptr<SubAccess> s) {
+	addNode(s, "subaccess");
 	return true;
 }
 
-bool Visitor::visit(Mux &m) {
-	addNode(&m, "mux");
+bool Visitor::visit(std::shared_ptr<Mux> m) {
+	addNode(m, "mux");
 	return true;
 }
 
-bool Visitor::visit(CondValid &c) {
-	addNode(&c, "condvalid");
+bool Visitor::visit(std::shared_ptr<CondValid> c) {
+	addNode(c, "condvalid");
 	return true;
 }
 
-bool Visitor::visit(PrimOp &op) {
-	addNode(&op, op.operationName());
+bool Visitor::visit(std::shared_ptr<PrimOp> op) {
+	addNode(op, op->operationName());
 
 	int i = 0;
-	for (auto o: op.getOperands())
-		addEdge(&op, o.get(), "["+std::to_string(i++)+"]");
+	for (auto o: op->getOperands())
+		addEdge(op, o, "["+std::to_string(i++)+"]");
 
 	return true;
 }
 
-void Visitor::addNode(IRNode* node, std::string text) {
+void Visitor::addNode(std::shared_ptr<IRNode> node, std::string text) {
 	std::string n;
 	int id = mNodes.size();
 	mNodeDictionary[node] = id;
@@ -266,7 +266,8 @@ void Visitor::addNode(IRNode* node, std::string text) {
 	mNodes.push_back(n);
 }
 
-void Visitor::addEdge(IRNode* from, IRNode* to, std::string text) {
+void Visitor::addEdge(std::shared_ptr<IRNode> from, std::shared_ptr<IRNode> to,
+		std::string text) {
 	mEdges.push_back(std::make_tuple(from, to, text));
 }
 

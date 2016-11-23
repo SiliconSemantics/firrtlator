@@ -72,7 +72,7 @@ std::vector<std::shared_ptr<Parameter> > Module::getParameters() {
 }
 
 void Module::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Module>()))
 		return;
 
 	for (auto p : mPorts)
@@ -81,7 +81,7 @@ void Module::accept(Visitor& v) {
 	if (mStmts)
 		mStmts->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Module>());
 }
 
 }

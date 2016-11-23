@@ -40,12 +40,12 @@ Port::Direction Port::getDirection() {
 }
 
 void Port::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Port>()))
 		return;
 
 	mType->accept(v);
 
-	v.leave(*this);
+	v.leave(shared_from_base<Port>());
 }
 
 }

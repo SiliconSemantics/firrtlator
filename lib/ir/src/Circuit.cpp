@@ -20,8 +20,9 @@
  * SOFTWARE.
  */
 
-#include "../backends/generic/include/StreamIndentation.h"
 #include "IR.h"
+
+#include <iostream>
 
 #include "Visitor.h"
 
@@ -45,7 +46,7 @@ std::vector<std::shared_ptr<Module> > Circuit::getModules() {
 }
 
 void Circuit::accept(Visitor& v) {
-	if (!v.visit(*this))
+	if (!v.visit(shared_from_base<Circuit>()))
 		return;
 
 	for (auto m : mExternalModules)
@@ -55,7 +56,7 @@ void Circuit::accept(Visitor& v) {
 		m->accept(v);
 
 
-	v.leave(*this);
+	v.leave(shared_from_base<Circuit>());
 }
 
 }

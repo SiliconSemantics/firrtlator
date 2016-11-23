@@ -21,6 +21,7 @@
  */
 
 #include "IR.h"
+#include "Visitor.h"
 
 namespace Firrtlator {
 
@@ -29,7 +30,7 @@ Parameter::Parameter() {
 }
 
 void Parameter::accept(Visitor& v) {
-
+	v.visit(shared_from_base<Parameter>());
 }
 
 }

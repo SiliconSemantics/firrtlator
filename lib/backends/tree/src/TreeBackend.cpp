@@ -59,31 +59,31 @@ Visitor::~Visitor() {
 
 }
 
-bool Visitor::visit(Circuit &c) {
-	*mStream << "(circuit) id=" << c.getId();
+bool Visitor::visit(std::shared_ptr<Circuit> c) {
+	*mStream << "(circuit) id=" << c->getId();
 	outputInfo(c);
 	*mStream << indent << endl;
 	return true;
 }
 
-void Visitor::leave(Circuit &c) {
+void Visitor::leave(std::shared_ptr<Circuit> c) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Module &m) {
-	*mStream << "(module) id=" << m.getId();
+bool Visitor::visit(std::shared_ptr<Module> m) {
+	*mStream << "(module) id=" << m->getId();
 	outputInfo(m);
 	*mStream << indent << endl;
 	return true;
 }
 
-void Visitor::leave(Module &m) {
+void Visitor::leave(std::shared_ptr<Module> m) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Port &p) {
-	*mStream << "(port) id=" << p.getId() << ", dir=";
-	if (p.getDirection() == Port::INPUT)
+bool Visitor::visit(std::shared_ptr<Port> p) {
+	*mStream << "(port) id=" << p->getId() << ", dir=";
+	if (p->getDirection() == Port::INPUT)
 		*mStream << "input";
 	else
 		*mStream << "output";
@@ -92,254 +92,254 @@ bool Visitor::visit(Port &p) {
 	return true;
 }
 
-void Visitor::leave(Port &p) {
+void Visitor::leave(std::shared_ptr<Port> p) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Parameter &) {
+bool Visitor::visit(std::shared_ptr<Parameter> ) {
 	return true;
 }
 
-void Visitor::visit(TypeInt &t) {
-	*mStream << "(type int) signed=" << (t.getSigned() ? "true" : "false");
-	*mStream << ", width=" << t.getWidth() << endl;
+void Visitor::visit(std::shared_ptr<TypeInt> t) {
+	*mStream << "(type int) signed=" << (t->getSigned() ? "true" : "false");
+	*mStream << ", width=" << t->getWidth() << endl;
 }
 
-void Visitor::visit(TypeClock &t) {
+void Visitor::visit(std::shared_ptr<TypeClock> t) {
 	*mStream << "(type clock)" << endl;
 }
 
-bool Visitor::visit(Field &f) {
-	*mStream << "(field) id=" << f.getId();
-	*mStream << ", flipped=" << (f.getFlip() ? "true" : "false");
+bool Visitor::visit(std::shared_ptr<Field> f) {
+	*mStream << "(field) id=" << f->getId();
+	*mStream << ", flipped=" << (f->getFlip() ? "true" : "false");
 	*mStream << indent;
 	return true;
 }
 
-void Visitor::leave(Field &) {
+void Visitor::leave(std::shared_ptr<Field> ) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(TypeBundle &b) {
+bool Visitor::visit(std::shared_ptr<TypeBundle> b) {
 	*mStream << "(type bundle)" << indent << endl;
 	return true;
 }
 
-void Visitor::leave(TypeBundle &b) {
+void Visitor::leave(std::shared_ptr<TypeBundle> b) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(TypeVector &v) {
-	*mStream << "(type vector) size=" << v.getSize();
+bool Visitor::visit(std::shared_ptr<TypeVector> v) {
+	*mStream << "(type vector) size=" << v->getSize();
 	*mStream << indent << endl;
 	return true;
 }
 
-void Visitor::leave(TypeVector &b) {
+void Visitor::leave(std::shared_ptr<TypeVector> b) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(StmtGroup &) {
+bool Visitor::visit(std::shared_ptr<StmtGroup> ) {
 	*mStream << "(stmt group)" << indent << endl;
 	return true;
 }
 
-void Visitor::leave(StmtGroup &) {
+void Visitor::leave(std::shared_ptr<StmtGroup> ) {
 	*mStream << dedent;
 }
 
 
-bool Visitor::visit(Wire &w) {
-	*mStream << "(wire) id=" << w.getId() << indent << endl;;
+bool Visitor::visit(std::shared_ptr<Wire> w) {
+	*mStream << "(wire) id=" << w->getId() << indent << endl;;
 	return true;
 }
 
-void Visitor::leave(Wire &) {
+void Visitor::leave(std::shared_ptr<Wire> ) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Reg &r) {
-	*mStream << "(reg) id=" << r.getId();
+bool Visitor::visit(std::shared_ptr<Reg> r) {
+	*mStream << "(reg) id=" << r->getId();
 	outputInfo(r);
 	*mStream << indent << endl;
 	*mStream << "[type] ";
-	r.getType()->accept(*this);
+	r->getType()->accept(*this);
 	*mStream << "[clock] ";
-	r.getClock()->accept(*this);
-	if (r.getResetTrigger()) {
+	r->getClock()->accept(*this);
+	if (r->getResetTrigger()) {
 		*mStream << "[reset trigger] ";
-		r.getResetTrigger()->accept(*this);
+		r->getResetTrigger()->accept(*this);
 		*mStream << "[reset value] ";
-		r.getResetValue()->accept(*this);
+		r->getResetValue()->accept(*this);
 	}
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(Instance &i) {
-	*mStream << "(inst) id=" << i.getId();
+bool Visitor::visit(std::shared_ptr<Instance> i) {
+	*mStream << "(inst) id=" << i->getId();
 	*mStream << indent << endl;
 	return true;
 }
 
-void Visitor::leave(Instance &) {
+void Visitor::leave(std::shared_ptr<Instance> ) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Memory &m) {
+bool Visitor::visit(std::shared_ptr<Memory> m) {
 	*mStream << "(memory)";
 	return false;
 }
 
-bool Visitor::visit(Node &n) {
-	*mStream << "(node) id=" << n.getId();
+bool Visitor::visit(std::shared_ptr<Node> n) {
+	*mStream << "(node) id=" << n->getId();
 	*mStream << indent << endl;
 	return true;
 }
 
-void Visitor::leave(Node &n) {
+void Visitor::leave(std::shared_ptr<Node> n) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Connect &c) {
-	*mStream << "(connect) partial=" << (c.getPartial() ? "true" : "false");
+bool Visitor::visit(std::shared_ptr<Connect> c) {
+	*mStream << "(connect) partial=" << (c->getPartial() ? "true" : "false");
 	*mStream << indent << endl << "[to]";
-	c.getTo()->accept(*this);
+	c->getTo()->accept(*this);
 	*mStream << "[from]";
-	c.getFrom()->accept(*this);
+	c->getFrom()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(Invalid &i) {
+bool Visitor::visit(std::shared_ptr<Invalid> i) {
 	*mStream << "(invalid)" << indent << endl;
 	return true;
 }
 
-void Visitor::leave(Invalid& in) {
+void Visitor::leave(std::shared_ptr<Invalid>) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Conditional &c) {
+bool Visitor::visit(std::shared_ptr<Conditional> c) {
 	*mStream << "(when)" << indent << endl;
 	*mStream << "[cond]";
 
 	return true;
 }
 
-void Visitor::leave(Conditional&) {
+void Visitor::leave(std::shared_ptr<Conditional>) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(ConditionalElse &e) {
+bool Visitor::visit(std::shared_ptr<ConditionalElse> e) {
 	*mStream << "(else)" << indent << endl;
 	return true;
 }
 
-void Visitor::leave(ConditionalElse&) {
+void Visitor::leave(std::shared_ptr<ConditionalElse>) {
 	*mStream << dedent;
 }
 
-bool Visitor::visit(Stop &s) {
-	*mStream << "(stop) code=" << s.getCode() << indent << endl;
+bool Visitor::visit(std::shared_ptr<Stop> s) {
+	*mStream << "(stop) code=" << s->getCode() << indent << endl;
 	*mStream << "[clk]";
-	s.getClock()->accept(*this);
+	s->getClock()->accept(*this);
 	*mStream << "[cond]";
-	s.getCondition()->accept(*this);
+	s->getCondition()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(Printf &p) {
-	*mStream << "(printf) format=\"" << p.getFormat() << "\"" << endl;
+bool Visitor::visit(std::shared_ptr<Printf> p) {
+	*mStream << "(printf) format=\"" << p->getFormat() << "\"" << endl;
 	*mStream << indent << "[clock]";
-	p.getClock()->accept(*this);
+	p->getClock()->accept(*this);
 	*mStream << "[condition]";
-	p.getCondition()->accept(*this);
+	p->getCondition()->accept(*this);
 
-	for (auto a : p.getArguments())
+	for (auto a : p->getArguments())
 		a->accept(*this);
 
 	*mStream << dedent;
 	return false;
 }
 
-void Visitor::visit(Empty &) {
+void Visitor::visit(std::shared_ptr<Empty> ) {
 	*mStream << "(skip)" << endl;
 }
 
-void Visitor::visit(Reference &r) {
-	*mStream << "(ref) to=" << r.getToString() << endl;
+void Visitor::visit(std::shared_ptr<Reference> r) {
+	*mStream << "(ref) to=" << r->getToString() << endl;
 }
 
-void Visitor::visit(Constant &c) {
-	*mStream << "(const) value=" << c.getValue() << endl;
+void Visitor::visit(std::shared_ptr<Constant> c) {
+	*mStream << "(const) value=" << c->getValue() << endl;
 	*mStream << indent;
-	c.getType()->accept(*this);
+	c->getType()->accept(*this);
 	*mStream << dedent;
 }
 
-bool Visitor::visit(SubField &s) {
+bool Visitor::visit(std::shared_ptr<SubField> s) {
 	*mStream << "(subfield)" << indent << endl;
 	*mStream << "[field]";
-	s.getField()->accept(*this);
+	s->getField()->accept(*this);
 	*mStream << "[of]";
-	s.getOf()->accept(*this);
+	s->getOf()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(SubIndex &s) {
-	*mStream << "(subindex) index=" << s.getIndex() << indent << endl;
+bool Visitor::visit(std::shared_ptr<SubIndex> s) {
+	*mStream << "(subindex) index=" << s->getIndex() << indent << endl;
 	*mStream << "[of]";
-	s.getOf()->accept(*this);
+	s->getOf()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(SubAccess &s) {
+bool Visitor::visit(std::shared_ptr<SubAccess> s) {
 	*mStream << "(subaccess)" << indent << endl;
 	*mStream << "[expr]";
-	s.getExp()->accept(*this);
+	s->getExp()->accept(*this);
 	*mStream << "[of]";
-	s.getOf()->accept(*this);
+	s->getOf()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(Mux &m) {
+bool Visitor::visit(std::shared_ptr<Mux> m) {
 	*mStream << "(mux)" << indent << endl;
 	*mStream << "[sel]";
-	m.getSel()->accept(*this);
+	m->getSel()->accept(*this);
 	*mStream << "[a]";
-	m.getA()->accept(*this);
+	m->getA()->accept(*this);
 	*mStream << "[b]";
-	m.getB()->accept(*this);
+	m->getB()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(CondValid &c) {
+bool Visitor::visit(std::shared_ptr<CondValid> c) {
 	*mStream << "(condvalid)" << indent << endl;
 	*mStream << "[sel]";
-	c.getSel()->accept(*this);
+	c->getSel()->accept(*this);
 	*mStream << "[a]";
-	c.getA()->accept(*this);
+	c->getA()->accept(*this);
 	*mStream << dedent;
 	return false;
 }
 
-bool Visitor::visit(PrimOp &op) {
-	*mStream << "(" << op.operationName() << ")" << indent << endl;
+bool Visitor::visit(std::shared_ptr<PrimOp> op) {
+	*mStream << "(" << op->operationName() << ")" << indent << endl;
 	return true;
 }
 
-void Visitor::leave(PrimOp &op) {
+void Visitor::leave(std::shared_ptr<PrimOp> op) {
 	*mStream << dedent;
 }
-void Visitor::outputInfo(IRNode &n) {
-	if (n.getInfo()) {
-		*mStream << ", info=\"" << n.getInfo()->getValue() << "\"";
+void Visitor::outputInfo(std::shared_ptr<IRNode> n) {
+	if (n->getInfo()) {
+		*mStream << ", info=\"" << n->getInfo()->getValue() << "\"";
 	}
 }
 
