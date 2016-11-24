@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Firrtlator
+Description: FIRRTL C++ library and Firrtlator program
+URL: http://www.firrtlator.org
+Version: @VERSION@
+Requires:
+Libs: -L${libdir} -lfiirtlator
+Cflags: -I${includedir}

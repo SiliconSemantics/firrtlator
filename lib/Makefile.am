@@ -1,5 +1,5 @@
 
-pkginclude_HEADERS = include/Firrtlator.h include/IR.h
+pkginclude_HEADERS = include/Firrtlator.h include/IR.h include/Visitor.h
 lib_LTLIBRARIES = libfirrtlator.la
 
 libfirrtlator_la_SOURCES = \
