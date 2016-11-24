@@ -22,8 +22,9 @@
 
 #include <Firrtlator.h>
 #include <IR.h>
-#include "FirrtlFrontend.h"
-#include "FirrtlBackend.h"
+#include "FirrtlatorFrontend.h"
+#include "FirrtlatorPass.h"
+#include "FirrtlatorBackend.h"
 
 namespace Firrtlator {
 
@@ -55,15 +56,15 @@ std::string Firrtlator::getFrontend(std::string type) {
 
 bool Firrtlator::parse(std::string::const_iterator begin,
 		std::string::const_iterator end, std::string type) {
-	if (type == "fir") {
-		Frontend::Firrtl::Frontend frontend;
-		if (!frontend.parseString(begin, end))
-			return false;
-		pimpl->mIR = frontend.getIR();
-		return true;
-	}
 
-	return false;
+	std::shared_ptr<Frontend::FrontendBase> frontend;
+	frontend = Frontend::Registry::create(type);
+
+	if (!frontend->parseString(begin, end))
+		return false;
+	pimpl->mIR = frontend->getIR();
+
+	return true;
 }
 
 bool Firrtlator::parseFile(std::string filename, std::string type) {
@@ -87,8 +88,14 @@ void Firrtlator::elaborate() {
 	// Nothing for now
 }
 
+std::vector<Firrtlator::PassDescriptor> Firrtlator::getPasses() {
+	return Pass::Registry::getDescriptors();
+}
+
+
 void Firrtlator::pass(std::string id) {
-	// None so far
+	std::shared_ptr<Pass::PassBase> pass = Pass::Registry::create(id);
+	pass->run(pimpl->mIR);
 }
 
 void Firrtlator::generate(std::string filename, std::string type) {

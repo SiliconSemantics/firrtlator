@@ -30,54 +30,48 @@
 #include "Firrtlator.h"
 
 namespace Firrtlator {
-namespace Frontend {
+namespace Pass {
 
-class FrontendBase {
+class PassBase {
 public:
-    virtual ~FrontendBase();
-    virtual bool parseString(std::string::const_iterator begin,
-                             std::string::const_iterator end) = 0;
-    virtual std::shared_ptr<Circuit> getIR();
-protected:
-    std::shared_ptr<Circuit> mIR;
+    virtual ~PassBase();
+    virtual void run(std::shared_ptr<Circuit>) = 0;
 };
 
-class FrontendFactory
+class PassFactory
 {
 public:
-	virtual ~FrontendFactory() {}
-    virtual std::shared_ptr<FrontendBase> create() = 0;
+	virtual ~PassFactory() {}
+    virtual std::shared_ptr<PassBase> create() = 0;
 
     virtual std::string getName() = 0;
     virtual std::string getDescription() = 0;
-    virtual std::vector<std::string> getFiletypes() = 0;
 };
 
 class Registry {
 public:
-	static void registerFrontend(const std::string &name,
-		FrontendFactory * factory);
-	static std::shared_ptr<FrontendBase> create(const std::string &name) {
-		throwAssert(getFrontendMap().find(name) != getFrontendMap().end(),
-				"Cannot find frontend: " + name);
-		return getFrontendMap()[name]->create();
+	static void registerPass(const std::string &name,
+		PassFactory * factory);
+	static std::shared_ptr<PassBase> create(const std::string &name) {
+		throwAssert(getPassMap().find(name) != getPassMap().end(),
+				"Cannot find pass: " + name);
+		return getPassMap()[name]->create();
 	}
 
-	static std::vector<Firrtlator::FrontendDescriptor> getDescriptors() {
-		std::vector<Firrtlator::FrontendDescriptor> list;
-		for (auto b : getFrontendMap()) {
-			Firrtlator::FrontendDescriptor desc;
+	static std::vector<Firrtlator::PassDescriptor> getDescriptors() {
+		std::vector<Firrtlator::PassDescriptor> list;
+		for (auto b : getPassMap()) {
+			Firrtlator::PassDescriptor desc;
 			desc.name = b.second->getName();
 			desc.description = b.second->getDescription();
-			desc.filetypes = b.second->getFiletypes();
 			list.push_back(desc);
 		}
 		return list;
 	}
 private:
-	typedef std::map<std::string, FrontendFactory* > FrontendMap;
-    static FrontendMap &getFrontendMap() {
-    	static FrontendMap map;
+	typedef std::map<std::string, PassFactory* > PassMap;
+    static PassMap &getPassMap() {
+    	static PassMap map;
     	return map;
     }
 };
@@ -85,25 +79,22 @@ private:
 }
 }
 
-#define REGISTER_FRONTEND(frontend) \
-    class frontend##Factory : public ::Firrtlator::Frontend::FrontendFactory { \
+#define REGISTER_PASS(pass) \
+    class pass##Factory : public ::Firrtlator::Pass::PassFactory { \
     public: \
-        frontend##Factory() \
+        pass##Factory() \
         { \
-            ::Firrtlator::Frontend::Registry::registerFrontend(frontend::name, \
+            ::Firrtlator::Pass::Registry::registerPass(pass::name, \
 				this); \
         } \
-        virtual std::shared_ptr<::Firrtlator::Frontend::FrontendBase> create() { \
-            return std::make_shared<frontend>(); \
+        virtual std::shared_ptr<::Firrtlator::Pass::PassBase> create() { \
+            return std::make_shared<pass>(); \
         } \
         virtual std::string getName() { \
-        	return frontend::name; \
+        	return pass::name; \
         } \
         virtual std::string getDescription() { \
-        	return frontend::description; \
-        } \
-        virtual std::vector<std::string> getFiletypes() { \
-            return frontend::filetypes; \
+        	return pass::description; \
         } \
     }; \
-    static frontend##Factory global_##frontend##Factory;
+    static pass##Factory global_##pass##Factory;

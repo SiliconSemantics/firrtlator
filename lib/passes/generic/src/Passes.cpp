@@ -20,22 +20,18 @@
  * SOFTWARE.
  */
 
-#include "FirrtlatorFrontend.h"
+#include "FirrtlatorPass.h"
 
 namespace Firrtlator {
-namespace Frontend {
+namespace Pass {
 
-FrontendBase::~FrontendBase() {
+PassBase::~PassBase() {
 
 }
 
-std::shared_ptr<Circuit> FrontendBase::getIR() {
-	return mIR;
-}
-
-void Registry::registerFrontend(const std::string &name,
-	FrontendFactory* factory) {
-	getFrontendMap()[name] = factory;
+void Registry::registerPass(const std::string &name,
+	PassFactory* factory) {
+	getPassMap()[name] = factory;
 }
 
 }

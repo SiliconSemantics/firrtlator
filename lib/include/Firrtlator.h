@@ -33,13 +33,6 @@ Firrtlator {
 public:
 	Firrtlator();
 	~Firrtlator();
-	bool parse(std::string::const_iterator begin,
-			std::string::const_iterator end, std::string type = "");
-	bool parseFile(std::string filename, std::string type = "");
-	bool parseString(std::string string, std::string type = "");
-
-	void elaborate();
-	void pass(std::string id);
 
 	typedef struct {
 		std::string name;
@@ -50,12 +43,27 @@ public:
 	static std::vector<FrontendDescriptor> getFrontends();
 	static std::string getFrontend(std::string type);
 
+	bool parse(std::string::const_iterator begin,
+			std::string::const_iterator end, std::string type = "");
+	bool parseFile(std::string filename, std::string type = "");
+	bool parseString(std::string string, std::string type = "");
+
+	void elaborate();
+
+	typedef struct {
+		std::string name;
+		std::string description;
+	} PassDescriptor;
+
+	static std::vector<PassDescriptor> getPasses();
+
+	void pass(std::string id);
+
 	typedef struct {
 		std::string name;
 		std::string description;
 		std::vector<std::string> filetypes;
 	} BackendDescriptor;
-
 
 	static std::vector<BackendDescriptor> getBackends();
 	static std::string getBackend(std::string type);

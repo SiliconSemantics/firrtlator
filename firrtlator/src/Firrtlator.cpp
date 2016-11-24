@@ -12,12 +12,16 @@ int main(int argc, char* argv[]) {
 	int c;
 
 	std::vector<std::string> input_files;
+	std::vector<std::string> passes;
 	std::string output_file = "out.fir";
 
-	while ((c = getopt (argc, argv, "hi:")) != -1) {
+	while ((c = getopt (argc, argv, "hi:p:")) != -1) {
 		switch(c) {
 		case 'i':
 			input_files.push_back(optarg);
+			break;
+		case 'p':
+			passes.push_back(optarg);
 			break;
 		case 'h':
 			help();
@@ -45,17 +49,29 @@ int main(int argc, char* argv[]) {
 
 	Firrtlator::Firrtlator firrtlator;
 
-	if (!firrtlator.parseFile(input_files[0], "fir")) {
-		std::cout << "Failed parsing " << input_files[0] << std::endl;
-	}
-
-	std::string::size_type pos = output_file.find_last_of(".");
+	std::string::size_type pos = input_files[0].find_last_of(".");
 	if (pos == std::string::npos) {
 		std::cout << "Cannot determine the output file type" << std::endl;
 		exit(1);
 	}
 
-	std::string ext = output_file.substr(pos+1, -1);
+	std::string ext = input_files[0].substr(pos+1, -1);
+
+	if (!firrtlator.parseFile(input_files[0], firrtlator.getFrontend(ext))) {
+		std::cout << "Failed parsing " << input_files[0] << std::endl;
+	}
+
+	for (auto p : passes) {
+		firrtlator.pass(p);
+	}
+
+	pos = output_file.find_last_of(".");
+	if (pos == std::string::npos) {
+		std::cout << "Cannot determine the output file type" << std::endl;
+		exit(1);
+	}
+
+	ext = output_file.substr(pos+1, -1);
 
 	firrtlator.generate(output_file, firrtlator.getBackend(ext));
 }
@@ -92,6 +108,16 @@ void help(void) {
 		for (auto t : b.filetypes) {
 			std::cout << " " << t;
 		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+
+	std::vector<::Firrtlator::Firrtlator::PassDescriptor> pdesc;
+	pdesc = ::Firrtlator::Firrtlator::getPasses();
+	std::cout << "Supported passes:" << std::endl;
+	for (auto p : pdesc) {
+		std::cout << "  " << p.name << std::endl;
+		std::cout << "    " << p.description << std::endl;
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
