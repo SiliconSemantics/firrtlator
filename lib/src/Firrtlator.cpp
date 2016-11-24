@@ -94,8 +94,8 @@ std::vector<Firrtlator::PassDescriptor> Firrtlator::getPasses() {
 
 
 void Firrtlator::pass(std::string id) {
-	std::shared_ptr<Pass::PassBase> pass = Pass::Registry::create(id);
-	pass->run(pimpl->mIR);
+	std::shared_ptr<Pass::PassBase> p = Pass::Registry::create(id);
+	p->run(pimpl->mIR);
 }
 
 void Firrtlator::generate(std::string filename, std::string type) {
