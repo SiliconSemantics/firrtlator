@@ -17,6 +17,7 @@ libfirrtlator_la_SOURCES = \
 	frontends/generic/src/Frontends.cpp \
 	frontends/firrtl/src/FirrtlFrontend.cpp \
 	passes/generic/src/Passes.cpp \
+	passes/stripinfo/src/StripInfo.cpp \
 	backends/generic/src/Backends.cpp \
 	backends/firrtl/src/FirrtlBackend.cpp \
 	backends/dot/src/DotBackend.cpp \
@@ -30,6 +31,7 @@ libfirrtlator_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	-I $(srcdir)/frontends \
 	-I $(srcdir)/frontends/firrtl/include \
 	-I $(srcdir)/passes \
+	-I $(srcdir)/passes/stripinfo/include \
 	-I $(srcdir)/backends \
 	-I $(srcdir)/backends/generic/include \
 	-I $(srcdir)/backends/firrtl/include \
