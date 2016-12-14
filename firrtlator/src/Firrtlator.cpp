@@ -82,6 +82,7 @@ void help(void) {
 	std::cout << std::endl;
 	std::cout << "  options:" << std::endl;
 	std::cout << "   -i <input>     Set input file. Currently only one file is supported." << std::endl;
+	std::cout << "   -p <passname>  Run pass on IR." << std::endl;
 	std::cout << std::endl;
 
 	std::vector<::Firrtlator::Firrtlator::FrontendDescriptor> fdesc;
