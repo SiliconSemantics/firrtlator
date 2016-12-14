@@ -150,7 +150,9 @@ void Visitor::leave(std::shared_ptr<StmtGroup> ) {
 
 
 bool Visitor::visit(std::shared_ptr<Wire> w) {
-	*mStream << "(wire) id=" << w->getId() << indent << endl;;
+	*mStream << "(wire) id=" << w->getId();
+	outputInfo(w);
+	*mStream << indent << endl;;
 	return true;
 }
 
@@ -172,12 +174,14 @@ bool Visitor::visit(std::shared_ptr<Reg> r) {
 		*mStream << "[reset value] ";
 		r->getResetValue()->accept(*this);
 	}
+	outputInfo(r);
 	*mStream << dedent;
 	return false;
 }
 
 bool Visitor::visit(std::shared_ptr<Instance> i) {
 	*mStream << "(inst) id=" << i->getId();
+	outputInfo(i);
 	*mStream << indent << endl;
 	return true;
 }
@@ -188,11 +192,13 @@ void Visitor::leave(std::shared_ptr<Instance> ) {
 
 bool Visitor::visit(std::shared_ptr<Memory> m) {
 	*mStream << "(memory)";
+	outputInfo(m);
 	return false;
 }
 
 bool Visitor::visit(std::shared_ptr<Node> n) {
 	*mStream << "(node) id=" << n->getId();
+	outputInfo(n);
 	*mStream << indent << endl;
 	return true;
 }
@@ -203,6 +209,7 @@ void Visitor::leave(std::shared_ptr<Node> n) {
 
 bool Visitor::visit(std::shared_ptr<Connect> c) {
 	*mStream << "(connect) partial=" << (c->getPartial() ? "true" : "false");
+	outputInfo(c);
 	*mStream << indent << endl << "[to]";
 	c->getTo()->accept(*this);
 	*mStream << "[from]";
@@ -212,7 +219,9 @@ bool Visitor::visit(std::shared_ptr<Connect> c) {
 }
 
 bool Visitor::visit(std::shared_ptr<Invalid> i) {
-	*mStream << "(invalid)" << indent << endl;
+	*mStream << "(invalid)";
+	outputInfo(i);
+	*mStream << indent << endl;
 	return true;
 }
 
@@ -241,7 +250,9 @@ void Visitor::leave(std::shared_ptr<ConditionalElse>) {
 }
 
 bool Visitor::visit(std::shared_ptr<Stop> s) {
-	*mStream << "(stop) code=" << s->getCode() << indent << endl;
+	*mStream << "(stop) code=" << s->getCode();
+	outputInfo(s);
+	*mStream << indent << endl;
 	*mStream << "[clk]";
 	s->getClock()->accept(*this);
 	*mStream << "[cond]";
@@ -252,6 +263,7 @@ bool Visitor::visit(std::shared_ptr<Stop> s) {
 
 bool Visitor::visit(std::shared_ptr<Printf> p) {
 	*mStream << "(printf) format=\"" << p->getFormat() << "\"" << endl;
+	outputInfo(p);
 	*mStream << indent << "[clock]";
 	p->getClock()->accept(*this);
 	*mStream << "[condition]";
@@ -264,8 +276,10 @@ bool Visitor::visit(std::shared_ptr<Printf> p) {
 	return false;
 }
 
-void Visitor::visit(std::shared_ptr<Empty> ) {
-	*mStream << "(skip)" << endl;
+void Visitor::visit(std::shared_ptr<Empty> e) {
+	*mStream << "(skip)";
+	outputInfo(e);
+	*mStream << endl;
 }
 
 void Visitor::visit(std::shared_ptr<Reference> r) {

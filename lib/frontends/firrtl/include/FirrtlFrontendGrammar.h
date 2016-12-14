@@ -218,7 +218,7 @@ struct FirrtlGrammar : qi::grammar<Iterator, std::shared_ptr<Circuit>()>
 				>> exp_ [bind(&Reg::setResetTrigger, _val, _1)]
 				>> exp_ [bind(&Reg::setResetValue, _val, _1)]
 				>> ')' >> ')' )
-				>> -info
+				>> -info [bind(&Stmt::setInfo, _val, _1)]
 				;
 		BOOST_SPIRIT_DEBUG_NODE(reg);
 

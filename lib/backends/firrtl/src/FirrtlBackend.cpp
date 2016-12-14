@@ -272,6 +272,8 @@ bool Visitor::visit(std::shared_ptr<Connect> c) {
 
 	from->accept(*this);
 
+	outputInfo(c);
+
 	*mStream << endl;
 
 	return false;
@@ -281,8 +283,10 @@ bool Visitor::visit(std::shared_ptr<Invalid> ) {
 	return true;
 }
 
-void Visitor::leave(std::shared_ptr<Invalid>) {
-	*mStream << " is invalid" << endl;
+void Visitor::leave(std::shared_ptr<Invalid> i) {
+	*mStream << " is invalid";
+	outputInfo(i);
+	*mStream << endl;
 }
 
 bool Visitor::visit(std::shared_ptr<Conditional> c) {
